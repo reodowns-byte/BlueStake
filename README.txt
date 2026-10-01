@@ -1,17 +1,18 @@
-BlueStake final Vercel package
+BlueStake — Match Markets Update
 
-Upload/replace in reodowns-byte/BlueStake main:
-- index.html
-- vercel.json
-- api/fixtures.js
+What changed:
+- Tapping any match card opens Match Details -> Markets.
+- The market screen works for live and non-live fixtures.
+- Live fixtures use API-Football live odds when available.
+- Non-live fixtures use API-Football pre-match odds when available.
+- Markets are grouped into All, Main, Goals, Half, Bookings and Corners.
+- Correct Score gets a Home / Draw / Away three-column layout.
+- Over/Under markets get line / Over / Under tables.
+- BlueStake deep-sea-blue/white styling is used for the market screen.
+- No odds are invented: if the API has no market data, the UI says markets are unavailable.
 
-The existing Vercel project is connected to this repository. After committing, Vercel should deploy automatically.
+IMPORTANT:
+Keep APIFOOTBALL_KEY as the existing Vercel environment variable. Do not put the API key in index.html.
 
-Keep the existing Vercel Production environment variable:
-APIFOOTBALL_KEY = your private API-Football key
-
-Do not put the API key in index.html or GitHub.
-
-Home opens directly to Live Matches. Join and Login are shown at the top right. The account UI in this package is a clearly labelled frontend demo; connect a real auth provider before collecting real credentials.
-
-Deposit/withdrawal UI is demo-only and does not request an activation fee or process real funds.
+API reference:
+API-Football documents /odds for pre-match odds and /odds/live for in-play odds.
