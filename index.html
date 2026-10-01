@@ -21,10 +21,47 @@
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(11,25,49,.62);z-index:50;padding:30px 14px;align-items:center;justify-content:center}.modal-backdrop.open{display:flex}.modal{width:min(100%,470px);background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 25px 70px rgba(0,0,0,.3)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:22px 22px 16px}.modal-head h2{margin:0;font-size:25px}.close{width:40px;height:40px;border-radius:13px;background:#eef4ff;color:#2870df;font-size:25px}.modal-body{padding:0 22px 24px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 22px}.auth-tabs button{padding:12px;border-radius:13px;background:#eef3fb;color:#3b82ed;font-weight:850}.auth-tabs .active{background:#e2ebff;color:var(--blue)}label{display:block;font-size:12px;font-weight:900;letter-spacing:.4px;margin:13px 0 7px}.field{width:100%;height:48px;border:1px solid #dce4f0;border-radius:13px;padding:0 13px;outline:none}.continue{width:100%;height:50px;margin-top:18px;border-radius:13px;background:var(--blue);color:#fff;font-size:17px;font-weight:900}.demo-note{color:#77869e;font-size:12px;margin:12px 0 0;line-height:1.45}
 
 
+
+/* Match details / markets */
+.market-detail-backdrop{display:none;position:fixed;inset:0;background:var(--bg);z-index:45;overflow:auto}
+.market-detail-backdrop.open{display:block}
+.market-detail{min-height:100vh;padding-bottom:100px}
+.market-detail-head{position:sticky;top:0;z-index:2;background:linear-gradient(135deg,#0a4168,#0b5b8a);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 14px 14px;box-shadow:0 4px 14px rgba(8,59,102,.22)}
+.market-nav{display:flex;align-items:center;gap:12px}
+.market-back{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:25px}
+.market-nav-title{font-size:18px;font-weight:900;flex:1}
+.market-home{width:40px;height:40px;border-radius:12px;background:#fff;color:#0a4168;font-size:19px}
+.market-match-head{background:#fff;border-bottom:1px solid var(--line);padding:18px 14px}
+.market-league{font-size:12px;color:var(--muted);font-weight:800;text-align:center;text-transform:uppercase}
+.market-teams{display:grid;grid-template-columns:1fr 82px 1fr;align-items:center;gap:8px;margin-top:12px}
+.market-team{font-size:17px;font-weight:900}
+.market-team.away{text-align:right}
+.market-score{text-align:center;font-size:27px;font-weight:950}
+.market-status{display:block;font-size:11px;color:var(--red);margin-top:3px}
+.market-tabs{display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border-bottom:1px solid var(--line)}
+.market-tab{padding:14px 8px;background:#fff;color:#66748a;font-weight:900;border-bottom:3px solid transparent}
+.market-tab.active{color:#0b5b8a;border-bottom-color:#0b5b8a}
+.market-filters{display:flex;gap:8px;overflow:auto;padding:12px 14px;scrollbar-width:none}
+.market-filters::-webkit-scrollbar{display:none}
+.market-filter{white-space:nowrap;background:#fff;border:1px solid #ccd7e5;border-radius:20px;padding:8px 14px;color:#53647f;font-weight:800}
+.market-filter.active{background:#0b5b8a;color:#fff;border-color:#0b5b8a}
+.market-groups{padding:0 14px}
+.market-group{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.market-group-title{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;font-weight:900;border-bottom:1px solid #edf1f7;color:var(--ink)}
+.market-group-body{padding:10px}
+.market-table{width:100%;border-collapse:collapse}
+.market-table th{font-size:11px;color:var(--muted);font-weight:800;padding:5px}
+.market-table td{padding:8px 5px;text-align:center;border-top:1px solid #edf1f7;font-size:13px}
+.market-cell{background:#eef7f0;border:1px solid #d5ebdb;border-radius:8px;padding:8px 4px;color:#16834b;font-weight:850}
+.correct-score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.correct-col-title{text-align:center;font-size:11px;color:var(--muted);font-weight:900;margin-bottom:6px}
+.market-unavailable{padding:22px 12px;text-align:center;color:var(--muted);line-height:1.5}
+.market-loading{padding:28px;text-align:center;color:var(--muted)}
+
 /* Logged-in BlueStake profile */
-.profile-logged .profile-page{background:#1a1d25}
+.profile-logged .profile-page{background:#083b66}
 .profile-member-head{
-  background:linear-gradient(135deg,#49301c,#2d241d);
+  background:linear-gradient(135deg,#083b66,#0b5b8a);
   padding:24px 30px 18px;
   color:#fff;
   position:relative;
@@ -33,20 +70,20 @@
 .profile-member-head:after{
   content:"";
   position:absolute;right:-70px;top:-80px;width:260px;height:260px;
-  border-radius:50%;background:rgba(205,145,35,.18);
+  border-radius:50%;background:rgba(91,184,232,.14);
 }
 .member-row{display:flex;align-items:center;gap:16px;position:relative;z-index:1}
 .member-avatar{
   width:76px;height:76px;border-radius:50%;background:#f5f5f5;color:#222;
   display:flex;align-items:center;justify-content:center;font-size:40px;
-  border:3px solid #f0b429;flex:none;
+  border:3px solid #5bb8e8;flex:none;
 }
 .member-name{font-size:24px;font-weight:600}
 .member-arrow{font-size:34px;color:#aeb4bd}
 .member-gear{margin-left:auto;font-size:29px}
 .tier-row{display:flex;align-items:center;gap:12px;margin-top:18px;color:#b9bec7;font-size:15px;position:relative;z-index:1}
-.tier-bar{height:7px;background:#5b5b5d;border-radius:10px;margin-top:10px;position:relative;z-index:1}
-.tier-fill{width:4%;height:100%;background:#f5c51d;border-radius:10px}
+.tier-bar{height:7px;background:#315f7e;border-radius:10px;margin-top:10px;position:relative;z-index:1}
+.tier-fill{width:4%;height:100%;background:#42c7ff;border-radius:10px}
 .member-balance{display:flex;justify-content:space-between;align-items:center;margin-top:24px;font-size:20px;position:relative;z-index:1}
 .member-balance strong{font-size:34px}
 .profile-logged .profile-actions{margin-top:24px}
@@ -54,27 +91,27 @@
 .logged-links .profile-link{min-height:72px}
 .logged-links .profile-link-icon{font-size:27px}
 .logged-footer{
-  background:#1a1d25;color:#aeb4bf;padding:30px 30px 90px;
+  background:#083b66;color:#d9e7f2;padding:30px 30px 90px;
   text-align:center;
 }
 .logged-footer .brandline{font-size:27px;font-weight:900;color:#fff;margin-bottom:8px}
 .logged-footer .subline{font-size:15px;margin-bottom:22px}
 .logged-footer .paytitle{font-size:14px;margin-bottom:12px}
 .logged-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:430px;margin:0 auto 24px}
-.logged-method{background:#20242d;border-radius:4px;padding:10px 4px;font-weight:700;font-size:12px;color:#d5d8de}
+.logged-method{background:#0d4b73;border-radius:4px;padding:10px 4px;font-weight:700;font-size:12px;color:#e6f2f8}
 .logged-legal{font-size:12px;line-height:1.45;margin:18px auto;max-width:600px}
 .logged-terms{border-top:1px solid #4b5059;padding-top:20px;font-size:13px}
-.logout-btn{width:100%;max-width:620px;margin:26px auto 0;height:58px;background:#353b48;color:#fff;font-size:20px;border:0}
+.logout-btn{width:100%;max-width:620px;margin:26px auto 0;height:58px;background:#0d4b73;color:#fff;font-size:20px;border:0}
 
 /* BlueStake profile redesign */
-.profile-view .top{display:none}.profile-view{background:#1a1d25}.profile-page{
+.profile-view .top{display:none}.profile-view{background:#083b66}.profile-page{
   margin: -18px -14px 0;
   min-height: calc(100vh - 88px);
-  background:#1a1d25;
+  background:#083b66;
   color:#fff;
   padding-bottom:20px;
 }
-.profile-hero{padding:28px 30px 28px;background:#1a1d25}
+.profile-hero{padding:28px 30px 28px;background:#083b66}
 .profile-login-row{display:flex;align-items:center;gap:18px}
 .profile-avatar{width:88px;height:88px;border-radius:50%;background:#fff;color:#1a1d25;display:flex;align-items:center;justify-content:center;font-size:48px;flex:none;border:1px solid #dfe4eb}
 .profile-login{font-size:25px;font-weight:500;display:flex;align-items:center;gap:12px}
@@ -88,8 +125,8 @@
 .profile-withdraw{background:transparent;color:#22d45c;border:2px solid #22d45c}
 .profile-loyalty{margin-top:28px;min-height:72px;border-radius:14px;background:linear-gradient(90deg,#334252,#273140);display:flex;align-items:center;justify-content:space-between;padding:14px 18px;font-size:19px;font-weight:800}
 .profile-loyalty span:last-child{color:#13e5bd}
-.profile-stats{margin-top:28px;background:#353b48;border-radius:15px;display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden}
-.profile-stat{min-height:118px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:2px solid #596170;font-size:17px;line-height:1.3}
+.profile-stats{margin-top:28px;background:#0d4b73;border-radius:15px;display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden}
+.profile-stat{min-height:118px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:2px solid #2d678d;font-size:17px;line-height:1.3}
 .profile-stat:last-child{border-right:0}
 .profile-stat-icon{font-size:25px;margin-bottom:10px}
 .profile-links{background:#fff;color:#343a47}
@@ -103,7 +140,7 @@
 .profile-partner{margin-top:8px;font-size:17px;color:#fff;font-weight:700}
 .profile-pay{margin-top:40px;font-size:15px}
 .profile-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:500px;margin:18px auto 0}
-.profile-method{background:#222630;padding:10px;border-radius:3px;font-weight:800;color:#d4d7de}
+.profile-method{background:#0d4b73;padding:10px;border-radius:3px;font-weight:800;color:#e6f2f8}
 .profile-disclaimer{font-size:11px;color:#8f97a5;margin-top:22px;line-height:1.4}
 .profile-page .profile-action{cursor:pointer}
 @media(max-width:480px){
@@ -120,14 +157,6 @@
 }
 
 @media(min-width:760px){.content{max-width:780px;margin:auto}.top{padding-left:max(18px,calc((100vw - 780px)/2));padding-right:max(18px,calc((100vw - 780px)/2))}.bottom{left:50%;right:auto;transform:translateX(-50%);width:min(780px,100%);border-radius:18px 18px 0 0}.promo-card{min-width:140px}}
-
-/* Match market details */
-.market-page{display:none;position:fixed;inset:0;z-index:30;background:#f4f7fd;overflow:auto;padding-bottom:92px}
-.market-page.open{display:block}
-.market-topbar{position:sticky;top:0;z-index:5;background:linear-gradient(135deg,#0b2f57,#124b7a);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 14px;box-shadow:0 4px 14px rgba(5,35,67,.22)}
-.market-headrow{display:flex;align-items:center;gap:12px}.market-back,.market-home{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center}.market-title{flex:1;text-align:center;font-size:20px;font-weight:900}.market-summary{background:#fff;padding:14px 14px 10px;text-align:center;border-bottom:1px solid var(--line)}
-.market-league{color:#1683a8;font-size:13px;font-weight:800}.market-teams{display:grid;grid-template-columns:1fr 82px 1fr;align-items:center;gap:8px;margin-top:10px}.market-team{font-weight:900;font-size:17px;line-height:1.15}.market-team.away{text-align:right}.market-score{font-size:25px;font-weight:950;color:#12233f}.market-time{display:block;font-size:11px;color:#77849a;margin-top:4px}.market-status{display:inline-block;margin-top:9px;padding:5px 10px;border-radius:999px;background:#eaf6ef;color:#16834b;font-size:11px;font-weight:900}.market-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;margin:10px 12px 0;gap:4px}.market-tab{height:48px;border-radius:9px;background:#e9edf4;color:#3c4658;font-weight:900;font-size:15px}.market-tab.active{background:#0e2945;color:#fff}.market-filter{display:flex;gap:22px;overflow:auto;background:#fff;border-bottom:1px solid var(--line);padding:12px 15px 9px;scrollbar-width:none}.market-filter::-webkit-scrollbar{display:none}.market-filter button{background:none;color:#3c4658;font-weight:800;white-space:nowrap;padding:0 2px 10px;position:relative}.market-filter button.active{color:#0b4771}.market-filter button.active:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#16a05d}.market-content{padding:0 12px}.bookmaker-note{padding:10px 2px;color:#74829a;font-size:11px}.market-group{background:#fff;border-bottom:1px solid #e2e7ef;padding:14px 4px 15px}.market-group-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:900;color:#353d4c;margin-bottom:11px}.market-chevron{color:#35bd70;font-size:18px}.market-info{width:21px;height:21px;border-radius:50%;background:#a2a9b5;color:#fff;font-size:13px;display:inline-flex;align-items:center;justify-content:center;font-weight:900}.market-star{margin-left:auto;color:#9ba3b1;font-size:22px}.odds-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.odd{min-height:54px;background:#dfeee2;border-radius:5px;padding:8px 10px;color:#246b34;display:flex;align-items:center;justify-content:space-between;gap:7px;font-weight:800;font-size:13px;border:1px solid transparent}.odd strong{font-size:16px;margin-left:auto}.odd.locked{background:#dfe2e8;color:#929aa8;justify-content:center}.odd.full{grid-column:1/-1;justify-content:center}.odd.two{grid-template-columns:1fr 1fr}.market-table{width:100%;border-collapse:separate;border-spacing:0 7px}.market-table th{background:#f0f2f5;color:#9aa1ad;font-weight:700;padding:9px;font-size:13px}.market-table td{background:#dfeee2;color:#246b34;padding:11px 10px;font-weight:800;font-size:14px}.market-table td:first-child{background:#e9ecf1;color:#3d4553;text-align:center}.market-table td:last-child{text-align:right}.market-empty{background:#fff;border:1px dashed #cbd5e2;border-radius:14px;margin:18px 0;padding:26px 16px;text-align:center;color:#74829a}.market-loading{text-align:center;padding:30px;color:#74829a}.market-spinner{width:28px;height:28px;border:3px solid #d9e4ef;border-top-color:#0b4771;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
-@media(max-width:480px){.market-team{font-size:15px}.market-title{font-size:18px}.odd{font-size:12px}.odd strong{font-size:15px}}
 </style>
 </head>
 <body>
@@ -163,7 +192,7 @@
       </div>
       <div class="profile-loyalty"><span>BlueStake Loyalty</span><span>Log in to join &nbsp;›</span></div>
       <div class="profile-stats">
-        <div class="profile-stat"><div class="profile-stat-icon">▤</div><div>Sports Bet History</div></div>
+        <div class="profile-stat"><div class="profile-stat-icon">▤</div><div>BlueStake History</div></div>
         <div class="profile-stat"><div class="profile-stat-icon">↻</div><div>Transaction<br>Records</div></div>
         <div class="profile-stat"><div class="profile-stat-icon">♔</div><div>Gifts (0)<br>Lucky Wheel (0)</div></div>
       </div>
@@ -191,7 +220,7 @@
       </div>
       <div class="profile-loyalty"><span>BlueStake Loyalty</span><span>Earn Rewards &nbsp;›</span></div>
       <div class="profile-stats">
-        <div class="profile-stat"><div class="profile-stat-icon">▤</div><div>Sports Bet History</div></div>
+        <div class="profile-stat"><div class="profile-stat-icon">▤</div><div>BlueStake History</div></div>
         <div class="profile-stat"><div class="profile-stat-icon">↻</div><div>Transaction<br>Records</div></div>
         <div class="profile-stat"><div class="profile-stat-icon">♔</div><div>Gifts (0)<br>Lucky Wheel (0)</div></div>
       </div>
@@ -223,14 +252,42 @@
   </div>
 </section>
 </main>
-<div id="marketPage" class="market-page">
-  <div class="market-topbar"><div class="market-headrow"><button class="market-back" onclick="closeMatch()">‹</button><div class="market-title" id="marketTitle">Match Details</div><button class="market-home" onclick="closeMatch();go('homePage',0)">⌂</button></div></div>
-  <div class="market-summary"><div class="market-league" id="marketLeague">Football</div><div class="market-teams"><div class="market-team" id="marketHome">Home</div><div class="market-score" id="marketScore">—<span class="market-time" id="marketTime"></span></div><div class="market-team away" id="marketAway">Away</div></div><div class="market-status" id="marketStatus">MATCH</div></div>
-  <div class="market-tabs"><button class="market-tab active">Markets</button><button class="market-tab">Stats</button><button class="market-tab">Codes</button></div>
-  <div class="market-filter"><button class="active" onclick="filterMarket('All',this)">All</button><button onclick="filterMarket('Main',this)">Main</button><button onclick="filterMarket('Goals',this)">Goals</button><button onclick="filterMarket('Half',this)">Half</button><button onclick="filterMarket('Bookings',this)">Bookings</button><button onclick="filterMarket('Corners',this)">Corners</button></div>
-  <div class="market-content"><div class="bookmaker-note" id="bookmakerNote">Loading available markets…</div><div id="marketBody" class="market-loading"><div class="market-spinner"></div>Loading markets…</div></div>
-</div>
 <nav class="bottom"><button class="active" onclick="go('homePage',0)"><span class="bi">⌂</span>Live</button><button onclick="go('matchesPage',1)"><span class="bi">⚽</span>Matches</button><button onclick="go('bookingsPage',2)"><span class="bi">🎟</span>Bookings</button><button onclick="go('walletPage',3)"><span class="bi">▣</span>Wallet</button><button onclick="go('profilePage',4)"><span class="bi">●</span>Profile</button></nav>
+</div>
+
+<div id="marketDetail" class="market-detail-backdrop">
+  <div class="market-detail">
+    <div class="market-detail-head">
+      <div class="market-nav">
+        <button class="market-back" onclick="closeMatch()">‹</button>
+        <div class="market-nav-title" id="marketMatchTitle">Match Markets</div>
+        <button class="market-home" onclick="closeMatch();go('homePage',0)">⌂</button>
+      </div>
+    </div>
+    <div class="market-match-head">
+      <div class="market-league" id="marketLeague">Live Football</div>
+      <div class="market-teams">
+        <div class="market-team" id="marketHomeTeam">Home</div>
+        <div class="market-score" id="marketScore">0 — 0<span class="market-status" id="marketStatus">LIVE</span></div>
+        <div class="market-team away" id="marketAwayTeam">Away</div>
+      </div>
+    </div>
+    <div class="market-tabs">
+      <button class="market-tab active">Markets</button>
+      <button class="market-tab" onclick="alert('Stats will be connected to the sports API next.')">Stats</button>
+      <button class="market-tab" onclick="alert('Codes will be connected to BlueStake bookings next.')">Codes</button>
+    </div>
+    <div class="market-filters">
+      <button class="market-filter active" data-filter="All" onclick="setMarketFilter('All')">All</button>
+      <button class="market-filter" data-filter="Main" onclick="setMarketFilter('Main')">Main</button>
+      <button class="market-filter" data-filter="Goals" onclick="setMarketFilter('Goals')">Goals</button>
+      <button class="market-filter" data-filter="Half" onclick="setMarketFilter('Half')">Half</button>
+      <button class="market-filter" data-filter="Bookings" onclick="setMarketFilter('Bookings')">Bookings</button>
+      <button class="market-filter" data-filter="Corners" onclick="setMarketFilter('Corners')">Corners</button>
+    </div>
+    <div id="marketBookmaker" style="padding:0 14px 10px;color:#74829a;font-size:12px;font-weight:800">Markets</div>
+    <div id="marketGroups" class="market-groups"></div>
+  </div>
 </div>
 <div id="authBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeAuth()"><div class="modal"><div class="modal-head"><h2 id="authTitle">Join BlueStake</h2><button class="close" onclick="closeAuth()">×</button></div><div class="modal-body"><div class="auth-tabs"><button id="joinTab" onclick="openAuth('join')">Join</button><button id="loginTab" onclick="openAuth('login')">Login</button></div><div id="joinFields"><label>NAME</label><input class="field" id="name" placeholder="Your name"><label>EMAIL</label><input class="field" id="joinEmail" type="email" placeholder="you@example.com"></div><div id="loginFields"><label>EMAIL</label><input class="field" id="loginEmail" type="email" placeholder="you@example.com"></div><label>PASSWORD</label><input class="field" type="password" placeholder="Demo only"><button class="continue" onclick="demoAuth()">Continue</button><div class="demo-note">Demo frontend only. Connect a real authentication provider before collecting real credentials.</div></div></div></div>
 <script>
@@ -264,50 +321,89 @@ function logoutDemo(){
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function leagueName(f){return f?.league?.name||'Live Football'}
+
+function findFixture(id){return fixtures.find(f=>Number(f?.fixture?.id)===Number(id))}
+function openMatch(id){
+  const f=findFixture(id);
+  if(!f)return;
+  const h=f?.teams?.home?.name||'Home', a=f?.teams?.away?.name||'Away';
+  $('marketMatchTitle').textContent=h+' vs '+a;
+  $('marketLeague').textContent=leagueName(f);
+  $('marketHomeTeam').textContent=h;
+  $('marketAwayTeam').textContent=a;
+  $('marketScore').firstChild.textContent=(f?.goals?.home??0)+' — '+(f?.goals?.away??0);
+  $('marketStatus').textContent=statusText(f);
+  $('marketDetail').dataset.fixtureId=String(id);
+  $('marketDetail').classList.add('open');
+  document.body.style.overflow='hidden';
+  setMarketFilter('All');
+  loadMarkets(f);
+}
+function closeMatch(){
+  $('marketDetail').classList.remove('open');
+  document.body.style.overflow='';
+}
+function setMarketFilter(filter){
+  document.querySelectorAll('.market-filter').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter));
+  $('marketGroups').dataset.filter=filter;
+  renderMarketGroups(window.currentMarkets||[]);
+}
+async function loadMarkets(f){
+  const live=['1H','2H','HT','ET','P','LIVE'].includes(f?.fixture?.status?.short);
+  $('marketGroups').innerHTML='<div class="market-loading"><div class="spinner"></div>Loading markets…</div>';
+  try{
+    const r=await fetch('/api/market?fixture='+encodeURIComponent(f.fixture.id)+'&live='+(live?'1':'0'),{cache:'no-store'});
+    if(!r.ok)throw new Error('Market request failed');
+    const data=await r.json();
+    window.currentMarkets=Array.isArray(data.markets)?data.markets:[];
+    $('marketBookmaker').textContent=data.bookmaker?('Odds by '+data.bookmaker):'Markets';
+    renderMarketGroups(window.currentMarkets);
+  }catch(e){
+    window.currentMarkets=[];
+    $('marketBookmaker').textContent='Markets';
+    $('marketGroups').innerHTML='<div class="market-unavailable"><b>Markets are unavailable for this match.</b><br><br>The match is still open, but the odds provider did not return market data.</div>';
+  }
+}
+function marketCategory(name){
+  const n=String(name||'').toLowerCase();
+  if(n.includes('correct score'))return 'Correct Score';
+  if(n.includes('over/under')||n.includes('goals over')||n.includes('goals under')||n.includes('total'))return 'Goals';
+  if(n.includes('half'))return 'Half';
+  if(n.includes('booking')||n.includes('card'))return 'Bookings';
+  if(n.includes('corner'))return 'Corners';
+  if(n.includes('1x2')||n.includes('double chance')||n.includes('handicap')||n.includes('asian'))return 'Main';
+  return 'Main';
+}
+function renderMarketGroups(markets){
+  const filter=$('marketGroups').dataset.filter||'All';
+  let list=markets.filter(m=>filter==='All'||marketCategory(m.name)===filter);
+  if(!list.length){
+    $('marketGroups').innerHTML='<div class="market-unavailable">No '+esc(filter==='All'?'market':filter.toLowerCase()+' market')+' data is available for this match.</div>';
+    return;
+  }
+  $('marketGroups').innerHTML=list.map(renderMarketGroup).join('');
+}
+function renderMarketGroup(m){
+  const name=String(m.name||'Market');
+  const vals=Array.isArray(m.values)?m.values:[];
+  if(name.toLowerCase().includes('correct score')){
+    const cols=[[],[],[]];
+    vals.forEach(v=>{
+      const s=String(v.value||v.label||'');
+      const num=s.split(':').map(Number);
+      const bucket=Number.isFinite(num[0])&&Number.isFinite(num[1])?(num[0]>num[1]?0:num[0]===num[1]?1:2):0;
+      cols[bucket].push(v);
+    });
+    return `<div class="market-group"><div class="market-group-title"><span>${esc(name)}</span><span>⌃</span></div><div class="market-group-body"><div class="correct-score-grid">${cols.map((col,i)=>`<div><div class="correct-col-title">${['Home','Draw','Away'][i]}</div>${col.length?col.map(v=>`<div class="market-cell" style="margin-bottom:6px">${esc(v.value||'')} <b>${esc(v.odd??'')}</b></div>`).join(''):'<div class="market-unavailable" style="padding:8px">—</div>'}</div>`).join('')}</div></div></div>`;
+  }
+  const hasLine=vals.some(v=>v?.handicap!=null||v?.line!=null);
+  return `<div class="market-group"><div class="market-group-title"><span>${esc(name)}</span><span>⌃</span></div><div class="market-group-body"><table class="market-table"><thead><tr>${hasLine?'<th>Line</th>':''}<th>Selection</th><th>Odds</th></tr></thead><tbody>${vals.map(v=>`<tr>${hasLine?`<td>${esc(v.handicap??v.line??'')}</td>`:''}<td><div class="market-cell">${esc(v.value||v.label||'')}</div></td><td><div class="market-cell">${esc(v.odd??'')}</div></td></tr>`).join('')}</tbody></table></div></div>`;
+}
 function statusText(f){const s=f?.fixture?.status||{};if(s.short==='HT')return 'HT';if(typeof s.elapsed==='number')return s.elapsed+"' H1";return s.long||'LIVE'}
 function renderChips(){const leagues=['All',...Array.from(new Set(fixtures.map(leagueName))).slice(0,10)];$('chips').innerHTML=leagues.map(l=>`<button class="chip ${selectedLeague===l?'active':''}" onclick="selectedLeague=${JSON.stringify(l)};renderChips();render()">${esc(l)}</button>`).join('')}
 function render(){const q=$('search').value.trim().toLowerCase();let list=fixtures.filter(f=>selectedLeague==='All'||leagueName(f)===selectedLeague).filter(f=>{const a=f?.teams?.home?.name||'',b=f?.teams?.away?.name||'';return !q||a.toLowerCase().includes(q)||b.toLowerCase().includes(q)||leagueName(f).toLowerCase().includes(q)});if(!list.length){$('matches').innerHTML='<div class="empty">No live matches match your search.</div>';return}const groups={};list.forEach(f=>(groups[leagueName(f)]??=[]).push(f));$('matches').innerHTML=Object.entries(groups).map(([league,arr])=>`<section class="league"><div class="league-head"><span><span class="hot">● LIVE</span> &nbsp;${esc(league)}</span><span>${arr.length} match${arr.length===1?'':'es'}</span></div>${arr.map(matchHtml).join('')}</section>`).join('')}
-function matchHtml(f){const h=f?.teams?.home?.name||'Home',a=f?.teams?.away?.name||'Away';const hs=f?.goals?.home??0,as=f?.goals?.away??0;const st=f?.fixture?.status?.short||'';const half=['1H','2H','HT','ET','P'].includes(st)?st:statusText(f);return `<article class="match" onclick="openMatch(${JSON.stringify(f).replace(/</g,'\u003c')})" role="button" tabindex="0"><div class="match-top"><span><b class="status">${esc(statusText(f))}</b> · ${esc(leagueName(f))}</span><span>${f?.fixture?.status?.elapsed?esc(f.fixture.status.elapsed)+"'":''}</span></div><div class="teams"><div class="team">${esc(h)}</div><div class="score">${esc(hs)} — ${esc(as)}<span class="half">${esc(half)}</span></div><div class="team away">${esc(a)}</div></div><div class="market-row"><div class="market"><small>1</small>Home</div><div class="market"><small>X</small>Draw</div><div class="market"><small>2</small>Away</div></div><div class="source">Tap to view Markets · Match ID ${esc(f?.fixture?.id||'')}</div></article>`}
+function matchHtml(f){const h=f?.teams?.home?.name||'Home',a=f?.teams?.away?.name||'Away';const hs=f?.goals?.home??0,as=f?.goals?.away??0;const st=f?.fixture?.status?.short||'';const half=['1H','2H','HT','ET','P'].includes(st)?st:statusText(f);return `<article class="match" role="button" tabindex="0" onclick="openMatch(${Number(f?.fixture?.id||0)})" onkeydown="if(event.key==='Enter'||event.key===' ')openMatch(${Number(f?.fixture?.id||0)})"><div class="match-top"><span><b class="status">${esc(statusText(f))}</b> · ${esc(leagueName(f))}</span><span>${f?.fixture?.status?.elapsed?esc(f.fixture.status.elapsed)+"'":''}</span></div><div class="teams"><div class="team">${esc(h)}</div><div class="score">${esc(hs)} — ${esc(as)}<span class="half">${esc(half)}</span></div><div class="team away">${esc(a)}</div></div><div class="market-row"><div class="market"><small>1</small>Home</div><div class="market"><small>X</small>Draw</div><div class="market"><small>2</small>Away</div></div><div class="source">Live score supplied by API-Football · Match ID ${esc(f?.fixture?.id||'')}</div></article>`}
 async function loadLive(){const box=$('matches');if(!fixtures.length)box.innerHTML='<div class="empty"><div class="spinner"></div>Loading live matches…</div>';try{const r=await fetch('/api/fixtures?live=all',{cache:'no-store'});if(!r.ok)throw new Error('API request failed');const data=await r.json();fixtures=Array.isArray(data.response)?data.response:[];$('updated').textContent='Updated '+new Date().toLocaleTimeString();renderChips();render()}catch(e){box.innerHTML='<div class="empty"><b>Live matches could not be loaded.</b><br><br>Check the Vercel API deployment and APIFOOTBALL_KEY environment variable, then tap Refresh.</div>';$('updated').textContent='Update failed'}}
-
-let currentMatch=null;let marketGroups=[];let marketFilter='All';
-function openMatch(f){
-  currentMatch=f;marketFilter='All';
-  const h=f?.teams?.home?.name||'Home',a=f?.teams?.away?.name||'Away';
-  const hs=f?.goals?.home,as=f?.goals?.away;const live=['1H','2H','HT','ET','BT','P'].includes(f?.fixture?.status?.short)||typeof f?.fixture?.status?.elapsed==='number';
-  $('marketTitle').textContent=h+' vs '+a;$('marketLeague').textContent=(f?.league?.name||'Football')+' · '+(f?.league?.country||'');$('marketHome').textContent=h;$('marketAway').textContent=a;
-  $('marketScore').innerHTML=(live&&hs!=null&&as!=null?esc(hs)+' — '+esc(as):'—')+'<span class="market-time">'+esc(formatKickoff(f))+'</span>';
-  $('marketStatus').textContent=live?(f?.fixture?.status?.long||'LIVE'):(f?.fixture?.status?.long||'UPCOMING');
-  $('marketStatus').style.background=live?'#eaf6ef':'#edf3fb';$('marketStatus').style.color=live?'#16834b':'#2457d6';
-  $('marketPage').classList.add('open');document.body.style.overflow='hidden';$('marketBody').innerHTML='<div class="market-loading"><div class="market-spinner"></div>Loading markets…</div>';$('bookmakerNote').textContent='Loading available markets…';
-  loadMarkets(f);
-}
-function closeMatch(){$('marketPage').classList.remove('open');document.body.style.overflow='';currentMatch=null}
-function formatKickoff(f){const d=f?.fixture?.date;if(!d)return '';try{return new Date(d).toLocaleString([], {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return ''}}
-async function loadMarkets(f){
-  try{const live=['1H','2H','HT','ET','BT','P'].includes(f?.fixture?.status?.short)||typeof f?.fixture?.status?.elapsed==='number';
-    const r=await fetch('/api/market?fixture='+encodeURIComponent(f?.fixture?.id||'')+'&live='+(live?'1':'0'),{cache:'no-store'});if(!r.ok)throw new Error('Market request failed');const data=await r.json();marketGroups=Array.isArray(data.groups)?data.groups:[];
-    $('bookmakerNote').textContent=data.bookmaker?('Markets supplied by '+data.bookmaker):'Available markets';renderMarkets();
-  }catch(e){marketGroups=[];$('bookmakerNote').textContent='Markets unavailable';$('marketBody').innerHTML='<div class="market-empty"><b>Markets are not available for this match right now.</b><br><br>The match is still available, but the sports provider has not returned market data.</div>'}
-}
-function filterMarket(name,el){marketFilter=name;document.querySelectorAll('.market-filter button').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');renderMarkets()}
-function groupBucket(name){const n=name.toLowerCase();if(/goal|over|under|both team|gg|ng/.test(n))return 'Goals';if(/half|ht|full time/.test(n))return 'Half';if(/corner/.test(n))return 'Corners';if(/card|booking|foul/.test(n))return 'Bookings';return 'Main'}
-function renderMarkets(){
-  let groups=marketGroups.filter(g=>marketFilter==='All'||groupBucket(g.name)===marketFilter);
-  if(!groups.length){$('marketBody').innerHTML='<div class="market-empty">No markets are currently available in this category.</div>';return}
-  $('marketBody').innerHTML=groups.map(renderMarketGroup).join('');
-}
-function renderMarketGroup(g){
-  const n=g.name.toLowerCase();const vals=g.values||[];
-  if(/correct score/.test(n))return correctScoreGroup(g);
-  if(/over\/under|over under|asian over/.test(n))return overUnderGroup(g);
-  if(/handicap/.test(n)&&vals.some(v=>String(v.value||'').includes(':')))return handicapGroup(g);
-  return `<section class="market-group"><div class="market-group-title"><span class="market-chevron">⌄</span>${esc(g.name)}<span class="market-info">i</span><span class="market-star">☆</span></div><div class="odds-grid">${vals.map(v=>`<div class="odd"><span>${esc(v.value||'')}</span><strong>${esc(v.odd||'—')}</strong></div>`).join('')}</div></section>`
-}
-function correctScoreGroup(g){const vals=g.values||[];let home=[],draw=[],away=[];vals.forEach(v=>{const x=String(v.value||'');if(/^([0-9]+):([0-9]+)$/.test(x)){const m=x.match(/^([0-9]+):([0-9]+)$/);if(m[1]===m[2])draw.push(v);else if(Number(m[1])>Number(m[2]))home.push(v);else away.push(v)}});const col=(title,a)=>`<div><div style="text-align:center;color:#9299a7;font-weight:700;margin:0 0 6px">${title}</div>${a.map(v=>`<div class="odd" style="margin-bottom:7px"><span>${esc(v.value)}</span><strong>${esc(v.odd||'—')}</strong></div>`).join('')}</div>`;return `<section class="market-group"><div class="market-group-title"><span class="market-chevron">⌄</span>Correct Score<span class="market-info">i</span><span class="market-star">☆</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">${col('Home',home)}${col('Draw',draw)}${col('Away',away)}</div></section>`}
-function overUnderGroup(g){const vals=g.values||[];const rows={};vals.forEach(v=>{const m=String(v.value||'').match(/(Over|Under)\s+(.+)/i);if(m){const line=m[2],side=m[1].toLowerCase();rows[line]??={};rows[line][side]=v}});const lines=Object.keys(rows);return `<section class="market-group"><div class="market-group-title"><span class="market-chevron">⌄</span>${esc(g.name)}<span class="market-info">i</span><span class="market-star">☆</span></div><table class="market-table"><thead><tr><th>Line</th><th>Over</th><th>Under</th></tr></thead><tbody>${lines.map(line=>`<tr><td>${esc(line)}</td><td>${esc(rows[line].over?.odd||'—')}</td><td>${esc(rows[line].under?.odd||'—')}</td></tr>`).join('')}</tbody></table></section>`}
-function handicapGroup(g){return `<section class="market-group"><div class="market-group-title"><span class="market-chevron">⌄</span>${esc(g.name)}<span class="market-info">i</span><span class="market-star">☆</span></div><div class="odds-grid">${(g.values||[]).map(v=>`<div class="odd"><span>${esc(v.value||'')}</span><strong>${esc(v.odd||'—')}</strong></div>`).join('')}</div></section>`}
-
 setLoggedInProfile(localStorage.getItem('bluestakeDemoLoggedIn')==='1',localStorage.getItem('bluestakeDemoName')||'BlueStake User');
 loadLive();setInterval(()=>{if(document.visibilityState==='visible'&&document.getElementById('homePage').classList.contains('active'))loadLive()},60000);
 </script>
