@@ -121,26 +121,26 @@
 .profile-balance{font-size:36px;font-weight:900}
 .profile-actions{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:28px}
 .profile-action{height:68px;border-radius:4px;font-size:25px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:18px}
-.profile-deposit{background:#08a63b;color:#fff}
-.profile-withdraw{background:transparent;color:#22d45c;border:2px solid #22d45c}
-.profile-loyalty{margin-top:28px;min-height:72px;border-radius:14px;background:linear-gradient(90deg,#334252,#273140);display:flex;align-items:center;justify-content:space-between;padding:14px 18px;font-size:19px;font-weight:800}
-.profile-loyalty span:last-child{color:#13e5bd}
+.profile-deposit{background:#0d4b73;color:#fff}
+.profile-withdraw{background:#fff;color:#0d4b73;border:2px solid #0d4b73}
+.profile-loyalty{margin-top:28px;min-height:72px;border-radius:14px;background:linear-gradient(90deg,#0d4b73,#1f638f);display:flex;align-items:center;justify-content:space-between;padding:14px 18px;font-size:19px;font-weight:800}
+.profile-loyalty span:last-child{color:#ffffff}
 .profile-stats{margin-top:28px;background:#0d4b73;border-radius:15px;display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden}
-.profile-stat{min-height:118px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:2px solid #2d678d;font-size:17px;line-height:1.3}
+.profile-stat{min-height:118px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:2px solid #2a668d;font-size:17px;line-height:1.3}
 .profile-stat:last-child{border-right:0}
-.profile-stat-icon{font-size:25px;margin-bottom:10px}
-.profile-links{background:#fff;color:#343a47}
+.profile-stat-icon{font-size:25px;margin-bottom:10px;color:#fff}
+.profile-links{background:#fff;color:#0d2f4a}
 .profile-link{min-height:82px;border-bottom:1px solid #e5e7eb;padding:0 30px;display:flex;align-items:center;gap:20px;font-size:20px}
 .profile-link-icon{font-size:29px;width:30px;text-align:center}
 .profile-link-text{flex:1}
 .profile-link-right{color:#9aa2b1}
 .profile-available{background:#ed1d2f;color:#fff;border-radius:18px;padding:5px 12px;font-size:13px}
-.profile-footer{background:#1a1d25;color:#aeb5c1;text-align:center;padding:38px 24px 105px}
+.profile-footer{background:#083b5c;color:#dbeaf3;text-align:center;padding:38px 24px 105px}
 .profile-brand{font-size:27px;font-weight:950;color:#fff}
 .profile-partner{margin-top:8px;font-size:17px;color:#fff;font-weight:700}
 .profile-pay{margin-top:40px;font-size:15px}
 .profile-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:500px;margin:18px auto 0}
-.profile-method{background:#0d4b73;padding:10px;border-radius:3px;font-weight:800;color:#e6f2f8}
+.profile-method{background:#0d4b73;padding:10px;border-radius:3px;font-weight:800;color:#fff}
 .profile-disclaimer{font-size:11px;color:#8f97a5;margin-top:22px;line-height:1.4}
 .profile-page .profile-action{cursor:pointer}
 @media(max-width:480px){
@@ -355,7 +355,7 @@ async function loadMarkets(f){
     const r=await fetch('/api/market?fixture='+encodeURIComponent(f.fixture.id)+'&live='+(live?'1':'0'),{cache:'no-store'});
     if(!r.ok)throw new Error('Market request failed');
     const data=await r.json();
-    window.currentMarkets=Array.isArray(data.markets)?data.markets:[];
+    window.currentMarkets=Array.isArray(data.groups)?data.groups:(Array.isArray(data.markets)?data.markets:[]);
     $('marketBookmaker').textContent=data.bookmaker?('Odds by '+data.bookmaker):'Markets';
     renderMarketGroups(window.currentMarkets);
   }catch(e){
