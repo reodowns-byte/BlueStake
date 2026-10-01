@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       if (values.length) groups.push({ id: bet.id, name: bet.name, values });
     }
     res.setHeader('Cache-Control', live ? 's-maxage=10, stale-while-revalidate=20' : 's-maxage=60, stale-while-revalidate=120');
-    return res.status(200).json({ bookmaker: bookmaker.name, groups });
+    return res.status(200).json({ bookmaker: bookmaker.name, groups, markets: groups });
   } catch (e) {
     return res.status(500).json({ error: 'Unable to load markets' });
   }
