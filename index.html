@@ -19,6 +19,60 @@
 .page{display:none}.page.active{display:block}.darkbar{background:var(--dark);color:#fff;padding:12px 12px 13px;margin:5px 0 10px;border-radius:14px}.darktabs{display:flex;gap:20px;overflow:auto;scrollbar-width:none}.darktabs button{background:none;color:#ddd;font-weight:800;white-space:nowrap}.darktabs .active{color:#45d27e}.info-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:12px}.info-card h2{margin:0 0 8px}.info-card p{color:var(--muted);line-height:1.5}.primary{background:var(--blue);color:#fff;border-radius:12px;padding:12px 16px;font-weight:800}
 .bottom{position:fixed;z-index:20;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 5px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -5px 18px rgba(22,42,78,.08)}.bottom button{background:none;color:#7a879d;font-weight:800;font-size:11px;padding:3px}.bottom .bi{display:block;font-size:22px;line-height:25px}.bottom .active{color:var(--blue)}
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(11,25,49,.62);z-index:50;padding:30px 14px;align-items:center;justify-content:center}.modal-backdrop.open{display:flex}.modal{width:min(100%,470px);background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 25px 70px rgba(0,0,0,.3)}.modal-head{display:flex;justify-content:space-between;align-items:center;padding:22px 22px 16px}.modal-head h2{margin:0;font-size:25px}.close{width:40px;height:40px;border-radius:13px;background:#eef4ff;color:#2870df;font-size:25px}.modal-body{padding:0 22px 24px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 22px}.auth-tabs button{padding:12px;border-radius:13px;background:#eef3fb;color:#3b82ed;font-weight:850}.auth-tabs .active{background:#e2ebff;color:var(--blue)}label{display:block;font-size:12px;font-weight:900;letter-spacing:.4px;margin:13px 0 7px}.field{width:100%;height:48px;border:1px solid #dce4f0;border-radius:13px;padding:0 13px;outline:none}.continue{width:100%;height:50px;margin-top:18px;border-radius:13px;background:var(--blue);color:#fff;font-size:17px;font-weight:900}.demo-note{color:#77869e;font-size:12px;margin:12px 0 0;line-height:1.45}
+
+/* BlueStake profile redesign */
+.profile-view .top{display:none}.profile-view{background:#1a1d25}.profile-page{
+  margin: -18px -14px 0;
+  min-height: calc(100vh - 88px);
+  background:#1a1d25;
+  color:#fff;
+  padding-bottom:20px;
+}
+.profile-hero{padding:28px 30px 28px;background:#1a1d25}
+.profile-login-row{display:flex;align-items:center;gap:18px}
+.profile-avatar{width:88px;height:88px;border-radius:50%;background:#fff;color:#1a1d25;display:flex;align-items:center;justify-content:center;font-size:48px;flex:none;border:1px solid #dfe4eb}
+.profile-login{font-size:25px;font-weight:500;display:flex;align-items:center;gap:12px}
+.profile-arrow{font-size:40px;color:#aab1bd;line-height:1}
+.profile-mode{margin-left:auto;font-size:17px;color:#fff;white-space:nowrap}
+.profile-balance-row{display:flex;justify-content:space-between;align-items:center;margin-top:30px;font-size:22px}
+.profile-balance{font-size:36px;font-weight:900}
+.profile-actions{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:28px}
+.profile-action{height:68px;border-radius:4px;font-size:25px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:18px}
+.profile-deposit{background:#08a63b;color:#fff}
+.profile-withdraw{background:transparent;color:#22d45c;border:2px solid #22d45c}
+.profile-loyalty{margin-top:36px;min-height:92px;border-radius:14px;background:linear-gradient(90deg,#334252,#273140);display:flex;align-items:center;justify-content:space-between;padding:18px 22px;font-size:21px;font-weight:800}
+.profile-loyalty span:last-child{color:#13e5bd}
+.profile-stats{margin-top:36px;background:#353b48;border-radius:15px;display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden}
+.profile-stat{min-height:150px;padding:22px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:2px solid #596170;font-size:17px;line-height:1.3}
+.profile-stat:last-child{border-right:0}
+.profile-stat-icon{font-size:28px;margin-bottom:16px}
+.profile-links{background:#fff;color:#343a47}
+.profile-link{min-height:82px;border-bottom:1px solid #e5e7eb;padding:0 30px;display:flex;align-items:center;gap:20px;font-size:20px}
+.profile-link-icon{font-size:29px;width:30px;text-align:center}
+.profile-link-text{flex:1}
+.profile-link-right{color:#9aa2b1}
+.profile-available{background:#ed1d2f;color:#fff;border-radius:18px;padding:5px 12px;font-size:13px}
+.profile-footer{background:#1a1d25;color:#aeb5c1;text-align:center;padding:38px 24px 105px}
+.profile-brand{font-size:27px;font-weight:950;color:#fff}
+.profile-partner{margin-top:8px;font-size:17px;color:#fff;font-weight:700}
+.profile-pay{margin-top:40px;font-size:15px}
+.profile-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;max-width:500px;margin:18px auto 0}
+.profile-method{background:#222630;padding:10px;border-radius:3px;font-weight:800;color:#d4d7de}
+.profile-disclaimer{font-size:11px;color:#8f97a5;margin-top:22px;line-height:1.4}
+.profile-page .profile-action{cursor:pointer}
+@media(max-width:480px){
+  .profile-hero{padding-left:30px;padding-right:30px}
+  .profile-avatar{width:76px;height:76px;font-size:40px}
+  .profile-login{font-size:20px}
+  .profile-mode{font-size:14px}
+  .profile-balance-row{font-size:18px}
+  .profile-balance{font-size:31px}
+  .profile-actions{gap:12px}
+  .profile-action{font-size:21px;height:62px}
+  .profile-stat{font-size:15px;min-height:135px}
+  .profile-link{font-size:18px;padding:0 28px}
+}
+
 @media(min-width:760px){.content{max-width:780px;margin:auto}.top{padding-left:max(18px,calc((100vw - 780px)/2));padding-right:max(18px,calc((100vw - 780px)/2))}.bottom{left:50%;right:auto;transform:translateX(-50%);width:min(780px,100%);border-radius:18px 18px 0 0}.promo-card{min-width:140px}}
 </style>
 </head>
@@ -40,7 +94,62 @@
 <section id="matchesPage" class="page"><div class="info-card"><h2>Matches</h2><p>Live matches are shown on the BlueStake home screen. Select Live below to return to them.</p><button class="primary" onclick="go('homePage',0)">View Live Matches</button></div></section>
 <section id="bookingsPage" class="page"><div class="info-card"><h2>Bookings</h2><p>Enter a BlueStake booking code to find a saved booking.</p><input class="field" placeholder="E.G. BLUE7K9P2"><button class="primary" style="margin-top:12px">Find Booking</button></div></section>
 <section id="walletPage" class="page"><div class="info-card"><h2>Wallet</h2><p>Your wallet and transaction features will be connected to a secure backend before real funds are handled.</p></div></section>
-<section id="profilePage" class="page"><div class="info-card"><h2>BlueStake Profile</h2><p>Join or log in to access your account area. The current account form is a frontend demo and should not be used to collect real passwords.</p><button class="primary" onclick="openAuth('join')">Join BlueStake</button></div></section>
+<section id="profilePage" class="page profile-page">
+  <div class="profile-hero">
+    <div class="profile-login-row">
+      <div class="profile-avatar">●</div>
+      <button class="profile-login" onclick="openAuth('login')" style="background:none;color:#fff;padding:0">Login to View <span class="profile-arrow">›</span></button>
+      <div class="profile-mode">Dark Mode ◐</div>
+    </div>
+
+    <div class="profile-balance-row">
+      <span>Total Balance</span>
+      <strong class="profile-balance">GHS --</strong>
+    </div>
+
+    <div class="profile-actions">
+      <button class="profile-action profile-deposit" onclick="alert('Demo only: no real deposit was processed.')">▣ &nbsp; Deposit</button>
+      <button class="profile-action profile-withdraw" onclick="alert('Demo only: no real withdrawal or activation payment was processed.')">▣ &nbsp; Withdraw</button>
+    </div>
+
+    <div class="profile-loyalty">
+      <span>BlueStake Loyalty</span>
+      <span>Log in to join &nbsp;›</span>
+    </div>
+
+    <div class="profile-stats">
+      <div class="profile-stat"><div class="profile-stat-icon">▤</div><div>Sports Bet History</div></div>
+      <div class="profile-stat"><div class="profile-stat-icon">↻</div><div>Transaction<br>Records</div></div>
+      <div class="profile-stat"><div class="profile-stat-icon">♔</div><div>Gifts (0)<br>Lucky Wheel (0)</div></div>
+    </div>
+  </div>
+
+  <div class="profile-links">
+    <button class="profile-link" onclick="alert('Demo customer service area. Connect a real support channel in production.')">
+      <span class="profile-link-icon">♧</span><span class="profile-link-text">Customer Service</span><span class="profile-link-right">Online 24/7 &nbsp;›</span>
+    </button>
+    <button class="profile-link" onclick="alert('BlueStake How to play guide — demo content.')">
+      <span class="profile-link-icon">?</span><span class="profile-link-text">How to play</span><span class="profile-link-right">›</span>
+    </button>
+    <button class="profile-link" onclick="alert('You are viewing the latest BlueStake web version.')">
+      <span class="profile-link-icon">↻</span><span class="profile-link-text">Update App</span><span class="profile-available">available</span><span class="profile-link-right">›</span>
+    </button>
+    <div style="padding:18px 30px;background:#e9ecf1;color:#929aa8;display:flex;justify-content:space-between;font-size:14px">
+      <strong>▣ &nbsp; 18+</strong><span>© 2026 BlueStake. All rights reserved.</span>
+    </div>
+  </div>
+
+  <div class="profile-footer">
+    <div class="profile-brand">BlueStake</div>
+    <div class="profile-partner">Official BlueStake Sports Platform</div>
+    <div class="profile-pay">Payment methods</div>
+    <div class="profile-methods">
+      <div class="profile-method">MTN</div><div class="profile-method">VISA</div><div class="profile-method">Mastercard</div>
+      <div class="profile-method">Telecel</div><div class="profile-method">AirtelTigo</div><div class="profile-method">Mobile Money</div>
+    </div>
+    <div class="profile-disclaimer">Demo interface only. No real deposits, withdrawals, activation fees, or payment processing are performed by these controls.</div>
+  </div>
+</section>
 </main>
 <nav class="bottom"><button class="active" onclick="go('homePage',0)"><span class="bi">⌂</span>Live</button><button onclick="go('matchesPage',1)"><span class="bi">⚽</span>Matches</button><button onclick="go('bookingsPage',2)"><span class="bi">🎟</span>Bookings</button><button onclick="go('walletPage',3)"><span class="bi">▣</span>Wallet</button><button onclick="go('profilePage',4)"><span class="bi">●</span>Profile</button></nav>
 </div>
@@ -48,7 +157,7 @@
 <script>
 let fixtures=[];let selectedLeague='All';let authMode='join';
 const $=id=>document.getElementById(id);
-function go(id,idx){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.bottom button').forEach((x,i)=>x.classList.toggle('active',i===idx));window.scrollTo({top:0,behavior:'smooth'});if(id==='homePage')loadLive()}
+function go(id,idx){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.body.classList.toggle('profile-view',id==='profilePage');document.querySelectorAll('.bottom button').forEach((x,i)=>x.classList.toggle('active',i===idx));window.scrollTo({top:0,behavior:'smooth'});if(id==='homePage')loadLive()}
 function openAuth(mode){authMode=mode;$('authBackdrop').classList.add('open');$('authTitle').textContent=mode==='join'?'Join BlueStake':'Login to BlueStake';$('joinFields').style.display=mode==='join'?'block':'none';$('loginFields').style.display=mode==='login'?'block':'none';$('joinTab').classList.toggle('active',mode==='join');$('loginTab').classList.toggle('active',mode==='login')}
 function closeAuth(){$('authBackdrop').classList.remove('open')}
 function demoAuth(){alert(authMode==='join'?'Demo account form submitted. Real authentication is not connected yet.':'Demo login submitted. Real authentication is not connected yet.');closeAuth()}
