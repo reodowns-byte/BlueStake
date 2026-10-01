@@ -1,6 +1,5 @@
 {
   "functions": {
-    "api/fixtures.js": { "maxDuration": 10 },
-    "api/market.js": { "maxDuration": 10 }
+    "api/fixtures.js": { "maxDuration": 10 }
   }
 }
