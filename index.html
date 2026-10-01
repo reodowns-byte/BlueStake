@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BlueStake — Sports & Custom Match</title>
+<style>
+:root{
+  --blue:#0757d9; --blue2:#0b3fa8; --ink:#10233f; --muted:#6d7d93;
+  --bg:#f4f8ff; --card:#fff; --line:#e5ecf7; --green:#19a85b;
+  --gold:#d9a928; --danger:#dc3545;
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+button,input{font:inherit} button{cursor:pointer;border:0}
+.app{max-width:520px;margin:auto;min-height:100vh;background:var(--bg);padding-bottom:82px}
+.top{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;padding:18px 18px 20px;border-radius:0 0 24px 24px}
+.brand{display:flex;align-items:center;justify-content:space-between}.brand b{font-size:24px;letter-spacing:-.6px}
+.iconbtn{width:40px;height:40px;border-radius:12px;background:#ffffff1c;color:#fff}
+.balance{margin-top:20px;background:#ffffff12;border:1px solid #ffffff22;border-radius:18px;padding:15px}
+.balance small{opacity:.8}.amount{font-size:29px;font-weight:800;margin-top:4px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.action{padding:12px;border-radius:12px;font-weight:700}.deposit{background:#fff;color:var(--blue)}.withdraw{background:#ffffff20;color:#fff;border:1px solid #ffffff33}
+.content{padding:18px}.section{display:flex;justify-content:space-between;align-items:center;margin:3px 0 12px}.section h2{font-size:18px;margin:0}.link{color:var(--blue);font-size:13px;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 7px 22px #12356d0b;margin-bottom:12px}
+.match{padding:14px}.league{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.7px}
+.teams{display:grid;grid-template-columns:1fr 46px 1fr;align-items:center;text-align:center;margin:14px 0}
+.team{font-weight:800;font-size:14px}.score{font-size:12px;color:var(--muted);font-weight:700}
+.market{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.market button{background:#f1f5fb;border:1px solid var(--line);padding:10px 4px;border-radius:10px;color:var(--ink);font-weight:700;font-size:12px}
+.market button.active{background:#e7f0ff;border-color:#8eb4ff;color:var(--blue)}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px}.quick .card{padding:16px}.quick strong{display:block;font-size:15px;margin-bottom:5px}.quick span{font-size:12px;color:var(--muted)}
+.primary{background:var(--blue);color:#fff;padding:12px 14px;border-radius:11px;font-weight:800;width:100%;margin-top:12px}
+.form{padding:16px}.field{margin-bottom:12px}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:6px}.field input{width:100%;border:1px solid var(--line);border-radius:11px;padding:12px;outline:none}.field input:focus{border-color:#8eb4ff}
+.notice{background:#eef5ff;border:1px solid #d7e6ff;color:#31527e;padding:12px;border-radius:12px;font-size:12px;line-height:1.5}
+.code{font-weight:900;letter-spacing:2px;color:var(--blue);font-size:18px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:520px;width:100%;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:20}
+.nav button{background:none;color:#8290a5;font-size:10px;font-weight:800;padding:6px 0}.nav button.active{color:var(--blue)}.nav i{display:block;font-style:normal;font-size:20px;margin-bottom:2px}
+.hidden{display:none!important}
+.overlay{position:fixed;inset:0;background:#06152bb8;display:flex;align-items:center;justify-content:center;padding:22px;z-index:50}
+.modal{width:min(440px,100%);background:#fff;border-radius:25px;overflow:hidden;box-shadow:0 25px 80px #0005}
+.modalHead{padding:20px;text-align:center;background:linear-gradient(#fff,#f7faff)}.cup{font-size:76px;filter:drop-shadow(0 10px 12px #d9a92866)}.won{font-size:26px;font-weight:900}.winamount{font-size:31px;font-weight:900;color:var(--blue);margin-top:5px}.modalBody{padding:18px}.verify{color:var(--green);font-weight:800;text-align:center;font-size:13px}.modalBtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.modalBtns button{padding:12px;border-radius:11px;font-weight:800}.secondary{background:#edf3fb;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand"><b>BlueStake</b><button class="iconbtn" aria-label="Notifications">🔔</button></div>
+  <div class="balance"><small>AVAILABLE BALANCE</small><div class="amount" id="balance">GH₵ 0.00</div></div>
+  <div class="actions"><button class="action deposit" onclick="show('deposit')">＋ Deposit</button><button class="action withdraw" onclick="show('withdraw')">Withdraw</button></div>
+</header>
+
+<main class="content">
+<section id="home">
+  <div class="section"><h2>Featured Matches</h2><span class="link">View all</span></div>
+  <div class="card match">
+    <div class="league">Demo Match • Custom Simulation</div>
+    <div class="teams"><div class="team">Blue Lions</div><div class="score">VS</div><div class="team">Golden Stars</div></div>
+    <div class="market"><button onclick="pick(this)">Home</button><button onclick="pick(this)">Draw</button><button onclick="pick(this)">Away</button></div>
+  </div>
+  <div class="quick">
+    <div class="card" onclick="show('custom')"><strong>⚽ Custom Match</strong><span>Create a clearly labelled score simulation.</span></div>
+    <div class="card" onclick="show('booking')"><strong>🎟️ Booking Code</strong><span>Retrieve a saved booking.</span></div>
+  </div>
+  <div class="section" style="margin-top:22px"><h2>How it works</h2></div>
+  <div class="notice">BlueStake keeps wallet and transaction actions server-controlled in production. Custom matches shown here are simulations and should not be presented as independent real-world sporting events.</div>
+</section>
+
+<section id="custom" class="hidden">
+  <div class="section"><h2>Custom Match</h2><span class="link">Simulation</span></div>
+  <div class="card form">
+    <div class="notice">Set the target score for your own match simulation. The final result will equal the score you configure.</div>
+    <div class="field" style="margin-top:14px"><label>TEAM A</label><input id="teamA" placeholder="Blue Lions"></div>
+    <div class="field"><label>TEAM B</label><input id="teamB" placeholder="Golden Stars"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field"><label>TARGET SCORE A</label><input id="scoreA" type="number" min="0" max="20" value="3"></div>
+      <div class="field"><label>TARGET SCORE B</label><input id="scoreB" type="number" min="0" max="20" value="1"></div>
+    </div>
+    <button class="primary" onclick="startSimulation()">Start Custom Simulation</button>
+  </div>
+  <div id="sim" class="card form hidden"></div>
+</section>
+
+<section id="booking" class="hidden">
+  <div class="section"><h2>Booking Code</h2></div>
+  <div class="card form">
+    <div class="field"><label>ENTER BOOKING CODE</label><input id="bookingInput" placeholder="e.g. BLUE7K9P2" style="text-transform:uppercase"></div>
+    <button class="primary" onclick="lookupBooking()">Find Booking</button>
+    <div id="bookingResult" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<section id="deposit" class="hidden">
+  <div class="section"><h2>Deposit</h2></div>
+  <div class="card form">
+    <div class="notice"><b>Minimum deposit: GH₵300</b><br>In production, payment is verified server-side before funds are credited.</div>
+    <div class="field" style="margin-top:14px"><label>AMOUNT (GH₵)</label><input id="depositAmount" type="number" min="300" placeholder="300"></div>
+    <button class="primary" onclick="demoDeposit()">Submit Deposit for Verification</button>
+  </div>
+</section>
+
+<section id="withdraw" class="hidden">
+  <div class="section"><h2>Withdraw</h2></div>
+  <div class="card form">
+    <div class="notice"><b>Withdrawal activation</b><br>A GH₵500 activation deposit is required. This condition must be accepted before payment. Once verified, the GH₵500 is credited to the user's balance and the withdrawal area becomes available.</div>
+    <label style="display:block;margin-top:14px;font-size:12px;font-weight:800"><input type="checkbox" id="terms"> I agree to the withdrawal terms and conditions.</label>
+    <button class="primary" onclick="activateWithdrawal()">Continue to GH₵500 activation</button>
+  </div>
+</section>
+
+<section id="wallet" class="hidden">
+  <div class="section"><h2>Wallet</h2></div>
+  <div class="card form"><div class="league">CURRENT BALANCE</div><div class="amount" id="walletBalance">GH₵ 0.00</div><button class="primary" onclick="show('deposit')">Deposit</button></div>
+</section>
+
+<section id="profile" class="hidden">
+  <div class="section"><h2>Profile</h2></div>
+  <div class="card form"><strong>BlueStake User</strong><p style="color:var(--muted);font-size:13px">Account and security settings will be connected to authentication in the backend phase.</p></div>
+</section>
+</main>
+</div>
+
+<nav class="nav">
+<button class="active" onclick="show('home',this)"><i>⌂</i>Home</button>
+<button onclick="show('custom',this)"><i>⚽</i>Matches</button>
+<button onclick="show('booking',this)"><i>🎟</i>Bookings</button>
+<button onclick="show('wallet',this)"><i>💳</i>Wallet</button>
+<button onclick="show('profile',this)"><i>👤</i>Profile</button>
+</nav>
+
+<div id="winModal" class="overlay hidden">
+  <div class="modal">
+    <div class="modalHead"><div class="cup">🏆</div><div class="won">YOU WON</div><div class="winamount">GH₵ 1,200.00</div></div>
+    <div class="modalBody"><div class="verify">✓ RESULT RECORDED</div><div class="notice" style="margin-top:12px">Demo winning display. Production winnings must be calculated and recorded by the secure backend.</div><div class="modalBtns"><button class="secondary" onclick="closeWin()">Details</button><button style="background:var(--blue);color:#fff" onclick="closeWin()">Show Off</button></div></div>
+  </div>
+</div>
+
+<script>
+let balance=0;
+const sections=['home','custom','booking','deposit','withdraw','wallet','profile'];
+function money(n){return 'GH₵ '+Number(n).toLocaleString('en-GH',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function refresh(){document.querySelectorAll('#balance,#walletBalance').forEach(x=>x.textContent=money(balance))}
+function show(id,btn){
+  sections.forEach(s=>document.getElementById(s)?.classList.toggle('hidden',s!==id));
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else if(['home','custom','booking','wallet','profile'].includes(id)){
+    const map={home:0,custom:1,booking:2,wallet:3,profile:4};document.querySelectorAll('.nav button')[map[id]]?.classList.add('active')
+  }
+  scrollTo({top:0,behavior:'smooth'});
+}
+function pick(el){document.querySelectorAll('.market button').forEach(x=>x.classList.remove('active'));el.classList.add('active')}
+function demoDeposit(){
+  const a=Number(document.getElementById('depositAmount').value);
+  if(a<300){alert('Minimum deposit is GH₵300.');return}
+  alert('Demo only: this deposit is marked for verification. No real funds were processed.');
+}
+function activateWithdrawal(){
+  if(!document.getElementById('terms').checked){alert('Please read and accept the withdrawal terms first.');return}
+  alert('Demo only: the GH₵500 activation payment would be submitted for admin verification.');
+}
+function startSimulation(){
+  const a=document.getElementById('teamA').value.trim()||'Blue Lions',b=document.getElementById('teamB').value.trim()||'Golden Stars';
+  const sa=Math.max(0,Number(document.getElementById('scoreA').value)||0),sb=Math.max(0,Number(document.getElementById('scoreB').value)||0);
+  const box=document.getElementById('sim');box.classList.remove('hidden');
+  box.innerHTML=`<div class="league">CUSTOM SIMULATION</div><div class="teams"><div class="team">${a}</div><div class="score" id="simTime">00:00</div><div class="team">${b}</div></div><div style="text-align:center;font-size:30px;font-weight:900"><span id="liveA">0</span> — <span id="liveB">0</span></div><div class="notice" style="margin-top:14px">Target final score: <b>${sa} — ${sb}</b></div>`;
+  let sec=0,ca=0,cb=0; const total=Math.max(sa+sb,1), interval=setInterval(()=>{
+    sec++;document.getElementById('simTime').textContent=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+    if(sec%2===0 && ca<sa) ca++;
+    else if(sec%2===0 && cb<sb) cb++;
+    document.getElementById('liveA').textContent=ca;document.getElementById('liveB').textContent=cb;
+    if(ca===sa&&cb===sb){clearInterval(interval);box.innerHTML+=`<div class="notice" style="margin-top:12px;color:var(--green);font-weight:800">FT • ${a} ${sa} — ${sb} ${b}</div>`;setTimeout(()=>document.getElementById('winModal').classList.remove('hidden'),500)}
+    if(sec>total*3+4) {clearInterval(interval)}
+  },700);
+}
+function closeWin(){document.getElementById('winModal').classList.add('hidden')}
+function lookupBooking(){
+  const code=document.getElementById('bookingInput').value.trim().toUpperCase();
+  document.getElementById('bookingResult').innerHTML=code?`<div class="notice"><div class="code">${code}</div><br>Demo booking lookup. Production bookings will be retrieved from the secure database.</div>`:'';
+}
+refresh();
+</script>
+</body>
+</html>
