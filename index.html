@@ -364,7 +364,7 @@
         <div class="admin-field"><label>Home logo URL (optional)</label><div class="admin-logo-row"><input id="adminHomeLogoUrl" placeholder="https://…"><div id="adminHomeLogoPreview" class="admin-logo-preview">Home logo</div></div><input id="adminHomeLogoFile" type="file" accept="image/*" style="margin-top:8px;width:100%"></div>
         <div class="admin-field"><label>Away logo URL (optional)</label><div class="admin-logo-row"><input id="adminAwayLogoUrl" placeholder="https://…"><div id="adminAwayLogoPreview" class="admin-logo-preview">Away logo</div></div><input id="adminAwayLogoFile" type="file" accept="image/*" style="margin-top:8px;width:100%"></div>
       </div>
-      <div class="admin-actions"><button id="adminSaveMatch" class="admin-primary" onclick="saveAdminMatch()">Create Fixture</button><button class="admin-secondary" onclick="resetAdminMatchForm()">Clear</button></div>
+      <div class="admin-actions"><button type="button" id="adminSaveMatch" class="admin-primary" onclick="saveAdminMatch()">Create Fixture</button><button type="button" class="admin-secondary" onclick="resetAdminMatchForm()">Clear</button></div>
       <div class="admin-note">Match clock: 45 minutes first half → 15-minute half-time → 45 minutes second half → FT. Markets and odds are simulated for this fixture and are not bookmaker/API-Football odds.</div>
       <div id="adminFormMessage" class="admin-note"></div>
     </div>
@@ -532,7 +532,7 @@ async function saveAdminMatch(){
   const startDate=new Date(scheduled),endDate=new Date(endAt);if(Number.isNaN(startDate.getTime())||Number.isNaN(endDate.getTime())||endDate<=startDate){setAdminMessage('End time must be after the start time.',true);return}
   const duration=Math.round((endDate-startDate)/60000);if(duration!==105){setAdminMessage('Use a 105-minute match window: 45 min + 15 min break + 45 min.',true);return}
   if(!Number.isInteger(hs)||hs<0||!Number.isInteger(as)||as<0){setAdminMessage('Enter valid final scores.',true);return}
-  const save=$('adminSaveMatch');save.disabled=true;save.textContent='Saving…';
+  const save=$('adminSaveMatch');const wasEditing=!!editingAdminMatchId;save.disabled=true;save.textContent='Saving…';
   try{
     let homeLogo=$('adminHomeLogoUrl').value.trim(),awayLogo=$('adminAwayLogoUrl').value.trim();
     const hf=$('adminHomeLogoFile').files?.[0],af=$('adminAwayLogoFile').files?.[0];
@@ -543,8 +543,8 @@ async function saveAdminMatch(){
     if(editingAdminMatchId)result=await supabaseClient.from('bluestake_demo_matches').update(payload).eq('id',editingAdminMatchId);
     else result=await supabaseClient.from('bluestake_demo_matches').insert(payload);
     if(result.error)throw result.error;
-    setAdminMessage(editingAdminMatchId?'Fixture updated successfully.':'Fixture created successfully.');resetAdminMatchForm();await loadAdminMatches();await loadDemoFixtures();
-  }catch(e){setAdminMessage(e?.message||'Could not save fixture.',true)}finally{save.disabled=false;save.textContent=editingAdminMatchId?'Update Fixture':'Create Fixture'}
+    setAdminMessage(wasEditing?'Fixture updated successfully.':'Fixture created successfully.');resetAdminMatchForm();await loadAdminMatches();await loadDemoFixtures();
+  }catch(e){setAdminMessage(e?.message||'Could not save fixture.',true)}finally{save.disabled=false;save.textContent='Create Fixture'}
 }
 function customMatchState(m,now=Date.now()){
   const start=new Date(m.scheduled_at||0).getTime(),end=new Date(m.end_at||((m.scheduled_at?new Date(m.scheduled_at).getTime():0)+105*60000)).getTime();
@@ -560,7 +560,7 @@ function adminMatchHtml(m){
   const logo=(url,name)=>url?'<img src="'+esc(url)+'" alt="'+esc(name)+' logo">':'<div style="font-size:24px">⚽</div>';
   const st=customMatchState(m);const cls=st.key==='FT'?'ft':st.key==='HT'?'ht':st.key==='1H'||st.key==='2H'?'live':'';
   const clock=st.key==='1H'||st.key==='2H'?st.label+' '+st.minute+"'":st.label;
-  return '<div class="admin-match"><div class="admin-match-head"><div><b>'+esc(m.competition||'Football')+'</b><div class="admin-match-meta">Start: '+(m.scheduled_at?new Date(m.scheduled_at).toLocaleString():'Not set')+' · End: '+(m.end_at?new Date(m.end_at).toLocaleString():'Not set')+'</div></div><span class="admin-clock '+cls+'">'+clock+'</span></div><div class="admin-match-teams"><div class="admin-team-mini">'+logo(m.home_logo_url,m.home_team)+esc(m.home_team)+'</div><div class="admin-final">'+esc(m.final_home)+' : '+esc(m.final_away)+'</div><div class="admin-team-mini">'+logo(m.away_logo_url,m.away_team)+esc(m.away_team)+'</div></div><div class="admin-actions"><button class="admin-secondary" onclick="editAdminMatch('+JSON.stringify(m.id)+')">Edit</button><button class="admin-danger" onclick="deleteAdminMatch('+JSON.stringify(m.id)+')">Delete</button></div></div>'
+  return '<div class="admin-match"><div class="admin-match-head"><div><b>'+esc(m.competition||'Football')+'</b><div class="admin-match-meta">Start: '+(m.scheduled_at?new Date(m.scheduled_at).toLocaleString():'Not set')+' · End: '+(m.end_at?new Date(m.end_at).toLocaleString():'Not set')+'</div></div><span class="admin-clock '+cls+'">'+clock+'</span></div><div class="admin-match-teams"><div class="admin-team-mini">'+logo(m.home_logo_url,m.home_team)+esc(m.home_team)+'</div><div class="admin-final">'+esc(m.final_home)+' : '+esc(m.final_away)+'</div><div class="admin-team-mini">'+logo(m.away_logo_url,m.away_team)+esc(m.away_team)+'</div></div><div class="admin-actions"><button type="button" class="admin-secondary admin-edit-btn" data-admin-action="edit" data-match-id="'+esc(m.id)+'">Edit</button><button type="button" class="admin-danger admin-delete-btn" data-admin-action="delete" data-match-id="'+esc(m.id)+'">Delete</button></div></div>'
 }
 async function loadAdminMatches(){
   const box=$('adminMatchList');if(!box||!isBlueStakeAdmin)return;box.innerHTML='<div class="empty"><div class="spinner"></div>Loading…</div>';
@@ -934,7 +934,58 @@ $('adminScheduledAt')?.addEventListener('change',syncAdminEndTime);
 setInterval(()=>{if(demoFixtures.length)loadDemoFixtures()},15000);
 setTimeout(()=>loadDemoFixtures(),500);
 if($('betStake'))$('betStake').addEventListener('input',updateBetPotential);
+
+/* Admin fixture actions: delegated click handling makes Edit/Delete reliable on mobile Safari too. */
+document.addEventListener('click', async (event) => {
+  const button = event.target.closest?.('[data-admin-action][data-match-id]');
+  if (!button) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const id = button.getAttribute('data-match-id');
+  const action = button.getAttribute('data-admin-action');
+  if (!id || !action) return;
+
+  if (action === 'edit') {
+    await editAdminMatch(id);
+    return;
+  }
+
+  if (action === 'delete') {
+    if (!isBlueStakeAdmin) {
+      setAdminMessage('Admin access is required.', true);
+      return;
+    }
+
+    const confirmed = window.confirm('Delete this simulated fixture?');
+    if (!confirmed) return;
+
+    button.disabled = true;
+    const originalText = button.textContent;
+    button.textContent = 'Deleting…';
+
+    try {
+      const { error } = await supabaseClient
+        .from('bluestake_demo_matches')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAdminMessage('Fixture deleted successfully.');
+      await loadAdminMatches();
+      await loadDemoFixtures();
+    } catch (error) {
+      setAdminMessage(error?.message || 'Could not delete fixture.', true);
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+});
+
 renderOpenBets();
-loadLive();setInterval(()=>{if(document.visibilityState==='visible'&&document.getElementById('homePage').classList.contains('active'))loadLive()},60000);
+loadLive();
+setInterval(()=>{if(document.visibilityState==='visible'&&document.getElementById('homePage').classList.contains('active'))loadLive()},60000);
 </script>
 </body></html>
