@@ -6,6 +6,7 @@ export default async function handler(req, res) {
   const params = new URLSearchParams();
 
   if (q.live === 'all') params.set('live', 'all');
+  else if (q.id) params.set('id', String(q.id));
   else if (q.next) params.set('next', String(Math.min(Math.max(Number(q.next) || 50, 1), 100)));
   else if (q.date) params.set('date', String(q.date));
   else if (q.from || q.to) {
