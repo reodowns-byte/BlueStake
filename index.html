@@ -195,6 +195,24 @@
 .custom-fixture-time.live{color:#d93636}.custom-fixture-time.ht{color:#a86b00}.custom-fixture-time.ft{color:#16804c}
 .market-page .sim-odds-note{margin:0 0 12px;padding:9px 11px;border-radius:10px;background:#eef6fb;color:#145b82;font-size:11px;font-weight:800}
 @media(max-width:520px){.admin-field input{font-size:15px}}
+
+/* BlueStake Open Bets — screenshot-inspired layout */
+.blue-open-page{margin:-18px -14px 0;background:#f5f5f7;min-height:calc(100vh - 88px);padding-bottom:100px;color:#353a47}
+.bo-header{background:#353946;color:#fff;padding:20px 18px 0}
+.bo-header-top{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 22px;font-size:16px}
+.bo-help{background:transparent;color:#fff;border:0;font-size:17px;padding:6px 0;font-weight:700}
+.bo-balance{font-size:17px;font-weight:800;color:#fff}.bo-balance span{color:#fff;font-size:21px;margin-left:5px}
+.bo-main-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end}
+.bo-main-tabs button{height:74px;border:0;border-radius:7px 7px 0 0;background:#555966;color:#fff;font-size:18px;font-weight:800}
+.bo-main-tabs button.active{background:#fff;color:#353946}
+.bo-filters{display:flex;gap:10px;align-items:center;padding:14px 12px;background:#fff;border-bottom:1px solid #dfe1e6;overflow:auto}
+.bo-filters button{height:48px;border:0;border-radius:4px;background:#e0e2e8;color:#343a48;padding:0 18px;font-size:15px;font-weight:700;white-space:nowrap}
+.bo-filters button.active{background:#353946;color:#fff}.bo-filters .bo-icon-btn,.bo-filters .bo-grid-btn{margin-left:auto;padding:0 8px;background:#fff;color:#07933e;font-size:24px}.bo-filters .bo-grid-btn{margin-left:0;color:#89909e}
+.bo-list{padding:0 18px 30px}.bo-bet{background:#fff;margin:0 0 14px;box-shadow:0 1px 7px rgba(0,0,0,.13);padding:14px 12px 16px}.bo-bet-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e4e8;padding-bottom:10px}.bo-bet-title{font-size:18px;font-weight:900}.bo-live{color:#0a9a3d;background:#dff4e6;padding:2px 5px}.bo-head-actions{display:flex;gap:10px;color:#09983e;font-size:14px}.bo-head-actions button{border:0;background:#f5f6f7;color:#09983e;font-size:14px;padding:9px 8px}.bo-head-actions button:last-child{text-decoration:underline;background:#fff}
+.bo-leg{position:relative;padding:18px 0 16px 34px;border-bottom:1px solid #e4e5e8}.bo-play{position:absolute;left:4px;top:49px;width:30px;height:30px;border:3px solid #5d6470;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#5d6470;font-size:12px}.bo-line1{display:flex;align-items:center;gap:9px;font-size:20px;font-weight:800}.bo-ball{font-size:18px}.bo-market-muted{color:#a2a7b2;font-size:17px;font-weight:500}.bo-live-odds{display:inline-block;background:#dff3e5;color:#424b57;font-size:15px;padding:2px 4px;margin-top:12px}.bo-odds{font-size:20px;font-weight:900;margin-left:10px}.bo-arrow{color:#e11d2e;font-size:32px;line-height:1;display:inline-block;vertical-align:middle;margin-left:7px}.bo-match-name{margin-top:12px;font-size:17px;color:#3d4350;text-decoration:underline}.bo-match-name .vs{color:#a4a8b2;text-decoration:none}.bo-live-score{margin-top:10px;color:#07983f;font-size:17px;font-weight:700}.bo-live-score strong{font-weight:900}.bo-leg-icons{position:absolute;right:0;bottom:15px;display:flex;gap:12px;font-size:21px}.bo-hide{padding:15px 0;text-align:right;color:#a1a6b1;font-size:15px}.bo-hide span{color:#07983f}.bo-summary{padding-top:15px}.bo-summary-row{display:flex;justify-content:space-between;font-size:18px;padding:4px 0}.bo-summary-row strong{font-weight:900}.bo-cashout{width:100%;height:58px;border:0;background:#079b3f;color:#fff;font-size:20px;font-weight:900;margin-top:12px}.bo-cashout:disabled{background:#a8b0b8}.bo-cashout.demo::after{content:''}
+.bo-single{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}.bo-single-info{font-size:17px;line-height:1.5}.bo-single-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bo-single-stake{color:#9aa0aa}.bo-single-stake strong{color:#353a47}.bo-single .bo-cashout{width:180px;margin:0}
+.bo-empty{background:#fff;padding:60px 20px;text-align:center;color:#89909e;box-shadow:0 1px 7px rgba(0,0,0,.08)}
+@media(max-width:520px){.blue-open-page{margin:-18px -14px 0}.bo-header{padding-left:18px;padding-right:18px}.bo-main-tabs button{font-size:17px}.bo-filters{padding-left:12px}.bo-filters .bo-icon-btn{margin-left:auto}.bo-list{padding-left:18px;padding-right:18px}.bo-line1{font-size:18px}.bo-match-name{font-size:16px}.bo-single{grid-template-columns:1fr}.bo-single .bo-cashout{width:100%}.bo-head-actions{gap:4px}.bo-head-actions button{font-size:13px;padding:8px 5px}}
 </style>
 </head>
 <body>
@@ -213,15 +231,25 @@
 <div id="demoFixturesSection" class="demo-fixtures-card"></div>
 <div id="matches" class="match-list"><div class="empty"><div class="spinner"></div>Loading live matches…</div></div>
 </section>
-<section id="openBetsPage" class="page">
-  <div class="info-card">
-    <h2>Open Bets</h2>
-    <p>View your currently open bets and their status here.</p>
+<section id="openBetsPage" class="page blue-open-page">
+  <div class="bo-header">
+    <div class="bo-header-top">
+      <button class="bo-help" type="button">ⓘ How to Cashout?</button>
+      <div class="bo-balance">◉ <span>GHS 0.00</span></div>
+    </div>
+    <div class="bo-main-tabs">
+      <button class="active" type="button" onclick="setBetTab('open')">Open Bets (<span id="openBetCount">0</span>)</button>
+      <button type="button" onclick="setBetTab('settled')">Bet History</button>
+    </div>
   </div>
-  <div class="open-bets-card">
-    <div class="open-bets-tabs"><button class="active" onclick="setBetTab('open')">Open Bets</button><button onclick="setBetTab('settled')">Settled Bets</button></div>
-    <div id="openBetsList"></div>
+  <div class="bo-filters">
+    <button class="active" type="button" data-bo-filter="all" onclick="setOpenBetFilter('all')">All</button>
+    <button type="button" data-bo-filter="cashout" onclick="setOpenBetFilter('cashout')">Cashout Available</button>
+    <button type="button" data-bo-filter="live" onclick="setOpenBetFilter('live')">Live Games</button>
+    <button class="bo-icon-btn" type="button">▤</button>
+    <button class="bo-grid-btn" type="button">▦</button>
   </div>
+  <div id="openBetsList" class="bo-list"></div>
 </section>
 <section id="bookingsPage" class="page"><div class="info-card"><h2>Bookings</h2><p>Enter a BlueStake booking code to find a saved demo booking.</p><input id="bookingLookup" class="field" placeholder="E.G. BLUE7K9P2" style="text-transform:uppercase"><button class="primary" style="margin-top:12px" onclick="lookupBooking()">Find Booking</button><div id="bookingLookupResult" style="margin-top:14px"></div><p style="font-size:12px;margin-top:14px;color:#7b879c">Demo booking codes are saved on this device. Real cross-device booking retrieval requires a server database.</p></div></section>
 <section id="walletPage" class="page"><div class="info-card"><h2>BlueStake Wallet</h2><p>Manage your deposit and withdrawal requests from one place.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px"><button class="primary" onclick="openMoney('deposit')">Deposit</button><button class="primary" style="background:#fff;color:var(--blue);border:1px solid var(--blue)" onclick="openMoney('withdraw')">Withdraw</button></div><p style="font-size:12px;margin-top:14px">Demo only: requests are recorded as pending and no real funds are processed.</p></div></section>
@@ -761,7 +789,7 @@ function selectBet(g,v){
   const item=betValue(v);const odd=Number(item.odd);
   if(!Number.isFinite(odd)||odd<=0){alert('This selection does not have an available bookmaker odd yet.');return}
   const h=currentMatch?.teams?.home?.name||'Home',a=currentMatch?.teams?.away?.name||'Away';
-  const next={matchId:Number(currentMatch?.fixture?.id||0),home:h,away:a,league:currentMatch?.league?.name||'Football',market:g?.name||'Market',selection:item.value,odds:odd};
+  const next={matchId:Number(currentMatch?.fixture?.id||0),customId:currentMatch?.custom?String(currentMatch.customId||currentMatch.customData?.id||''):'',home:h,away:a,league:currentMatch?.league?.name||'Football',market:g?.name||'Market',selection:item.value,odds:odd};
   const key=selectionKey(next), existingIndex=selectedBets.findIndex(x=>selectionKey(x)===key);
   if(existingIndex>=0){selectedBets.splice(existingIndex,1);updateBetSlip();renderMarkets();return}
   const sameMatchIndex=selectedBets.findIndex(x=>Number(x.matchId)===Number(next.matchId));
@@ -916,19 +944,64 @@ async function settleOpenBets(){
   if(newly.length){saveOpenBets(remaining);saveSettledBets([...newly,...settled]);}
   return {remaining,newly};
 }
+function getSelectionLiveInfo(s){
+  const custom=demoFixtures.find(m=>String(m.id)===String(s.customId||s.fixtureId||''));
+  if(custom){
+    const st=customMatchState(custom),sc=simulatedScore(custom);
+    return {live:['1H','HT','2H'].includes(st.key),phase:st.key==='1H'?"H1":st.key==='2H'?"H2":st.key==='HT'?'HT':st.key==='FT'?'FT':'',minute:st.minute,homeScore:sc.home,awayScore:sc.away,home:s.home,away:s.away};
+  }
+  const id=Number(s.matchId);const f=fixtures.find(x=>Number(x?.fixture?.id)===id);
+  if(f){const st=f.fixture?.status||{},g=f.goals||{};const live=['1H','2H','HT'].includes(String(st.short||''));return {live,phase:st.short==='1H'?'H1':st.short==='2H'?'H2':st.short==='HT'?'HT':st.short==='FT'?'FT':'',minute:st.elapsed,homeScore:g.home??0,awayScore:g.away??0,home:s.home,away:s.away};}
+  return {live:false,phase:'',minute:null,homeScore:null,awayScore:null,home:s.home,away:s.away};
+}
+function simulatedCashout(b){
+  const potential=Number(b.potential)||0; if(!potential)return 0;
+  const sels=Array.isArray(b.selections)?b.selections:[b];
+  let liveCount=0;let winningCount=0;
+  sels.forEach(s=>{const x=getSelectionLiveInfo(s);if(x.live||x.phase==='HT'){liveCount++;if(String(s.market||'').toLowerCase().includes('correct score')){if(x.homeScore!==null&&x.awayScore!==null&&String(s.selection).replace(/\s/g,'')===`${x.homeScore}:${x.awayScore}`)winningCount++;}}});
+  const ratio=liveCount?Math.min(.92,Math.max(.25,.45+.18*winningCount+.05*liveCount)):0.1;
+  return Number((potential*ratio).toFixed(2));
+}
+function cashoutBet(id){
+  const bets=loadOpenBets();const bet=bets.find(b=>b.id===id);if(!bet)return;
+  const amount=simulatedCashout(bet);
+  if(!amount)return;
+  // Demo wallet only: records a local cashout event and closes the bet without moving real money.
+  const settled=loadSettledBets();bet.status='CASHED_OUT';bet.cashoutAmount=amount;bet.cashoutAt=new Date().toISOString();
+  saveOpenBets(bets.filter(b=>b.id!==id));settled.unshift(bet);saveSettledBets(settled);renderOpenBets();
+  alert(`Demo cashout: GHS ${amount.toFixed(2)}. No real money was paid.`);
+}
+function setOpenBetFilter(filter){
+  window.openBetFilter=filter;
+  document.querySelectorAll('[data-bo-filter]').forEach(b=>b.classList.toggle('active',b.dataset.boFilter===filter));
+  renderOpenBets();
+}
 function openBetHtml(b){
   const sels=Array.isArray(b.selections)?b.selections:[b];
   const status=String(b.status||'Open');
-  return `<div class="open-bet-item"><div class="open-bet-top"><span class="open-bet-status">${status==='WON'?'🏆 WON':status==='LOST'?'❌ LOST':'OPEN'}</span><span class="open-bet-time">${esc(new Date(b.placedAt).toLocaleString())}</span></div><div class="open-bet-type">${esc(b.type||'Single')} · Booking <b>${esc(b.bookingCode||'—')}</b></div>${sels.map((s,i)=>`<div class="open-bet-leg"><div class="open-bet-match">${i+1}. ${esc(s.home)} vs ${esc(s.away)}</div><div class="open-bet-market">${esc(s.market)} · <b>${esc(s.selection)}</b> @ ${Number(s.odds).toFixed(2)}</div></div>`).join('')}<div class="open-bet-values"><span>Stake: <strong>GHS ${Number(b.stake).toFixed(2)}</strong></span><span>${status==='WON'?'Winning return:':'Potential:'} <strong>GHS ${Number(b.potential).toFixed(2)}</strong></span></div>${status==='WON'?'<div style="font-size:34px;text-align:center;margin-top:8px">🏆</div>':''}</div>`;
+  const cashout=simulatedCashout(b);
+  const isCashout=status==='Open'&&cashout>0;
+  const legs=sels.map((s,i)=>{
+    const x=getSelectionLiveInfo(s);const live=x.live||x.phase==='HT';
+    const score=x.homeScore!==null&&x.awayScore!==null?`${x.homeScore}:${x.awayScore}`:'';
+    const phase=x.phase==='H1'?"H1":x.phase==='H2'?"H2":x.phase;
+    const time=x.minute?`${x.minute}' ${phase}`:phase;
+    return `<div class="bo-leg"><div class="bo-play">▶</div><div class="bo-line1"><span class="bo-ball">⚽</span>${score?esc(score):'—'} @ ${Number(s.odds||0).toFixed(2)} <span class="bo-market-muted">${esc(s.market||'')}</span></div>${live?`<div><span class="bo-live-odds">Live Odds</span><span class="bo-odds">${Number(s.odds||0).toFixed(2)}</span><span class="bo-arrow">↓</span></div>`:''}<div class="bo-match-name">${esc(s.home||'Home')} <span class="vs">vs</span> ${esc(s.away||'Away')}</div>${live?`<div class="bo-live-score">${esc(time)} | <strong>${esc(score)}</strong></div>`:''}<div class="bo-leg-icons"><span>🎮</span><span>›</span><span>📈</span></div></div>`;
+  }).join('');
+  return `<div class="bo-bet ${status!=='Open'?'settled':''}"><div class="bo-bet-head"><div class="bo-bet-title">${esc(b.type||'Multiple')} ${status==='Open'?'<span class="bo-live">Live</span>':''}</div><div class="bo-head-actions"><button type="button">↻ Rebet</button><button type="button">⌯</button><button type="button">Edit Bet</button></div></div>${legs}<div class="bo-hide">Hide Match Details <span>▲</span></div><div class="bo-summary"><div class="bo-summary-row"><span>Stake</span><strong>GHS ${Number(b.stake||0).toFixed(2)}</strong></div><div class="bo-summary-row"><span>${status==='CASHED_OUT'?'Cashout':'Pot. Win'}</span><strong>GHS ${Number(status==='CASHED_OUT'?b.cashoutAmount:b.potential||0).toFixed(2)}</strong></div>${isCashout?`<button class="bo-cashout" type="button" onclick="cashoutBet(${JSON.stringify(b.id)})">Cashout GHS ${cashout.toFixed(2)}</button>`:''}${status==='CASHED_OUT'?`<div style="margin-top:10px;color:#07983f;font-weight:900;text-align:center">CASHED OUT · GHS ${Number(b.cashoutAmount).toFixed(2)}</div>`:''}</div></div>`;
 }
 async function renderOpenBets(){
   const box=$('openBetsList');if(!box)return;
-  box.innerHTML='<div class="open-bets-empty"><div class="spinner"></div><p>Checking match results…</p></div>';
+  box.innerHTML='<div class="bo-empty">Checking your open bets…</div>';
   await settleOpenBets();
   const bets=loadOpenBets();
-  if(!bets.length){box.innerHTML='<div class="open-bets-empty"><div class="open-bets-icon">🎟</div><h3>No Open Bets</h3><p>Your open bets will appear here after you place a bet.</p></div>';return}
-  box.innerHTML=bets.map(openBetHtml).join('');
+  $('openBetCount').textContent=bets.length;
+  if(!bets.length){box.innerHTML='<div class="bo-empty">No open bets yet.</div>';return}
+  const filter=window.openBetFilter||'all';
+  const filtered=bets.filter(b=>{if(filter==='all')return true;const sels=Array.isArray(b.selections)?b.selections:[b];return sels.some(s=>{const x=getSelectionLiveInfo(s);return filter==='live'?(x.live||x.phase==='HT'):simulatedCashout(b)>0})});
+  box.innerHTML=filtered.length?filtered.map(openBetHtml).join(''):'<div class="bo-empty">No bets match this filter.</div>';
 }
+
 function renderSettledBets(){
   const box=$('openBetsList');if(!box)return;
   const bets=loadSettledBets();
@@ -1050,6 +1123,7 @@ document.addEventListener('click', async (event) => {
 });
 
 renderOpenBets();
+setInterval(()=>{ if(document.getElementById('openBetsPage')?.classList.contains('open')) renderOpenBets(); },1000);
 loadLive();
 setInterval(()=>{if(document.visibilityState==='visible'&&document.getElementById('homePage').classList.contains('active'))loadLive()},60000);
 </script>
