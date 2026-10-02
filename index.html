@@ -1052,15 +1052,24 @@ async function settleOpenBets(){
   return {remaining,newly};
 }
 function findDemoFixtureForSelection(s){
-  const id=String(s.customId||s.fixtureId||'');
-  let custom=demoFixtures.find(m=>String(m.id)===id);
-  if(custom)return custom;
-  const sh=String(s.home||'').trim().toLowerCase();
-  const sa=String(s.away||'').trim().toLowerCase();
-  if(sh&&sa){
-    custom=demoFixtures.find(m=>String(m.home_team||'').trim().toLowerCase()===sh&&String(m.away_team||'').trim().toLowerCase()===sa);
+  if(!s)return null;
+  /* Support every fixture identifier used by older/newer BlueStake bet records. */
+  const ids=[s.customId,s.fixtureId,s.fixture_id,s.matchId,s.match_id,s.demoFixtureId]
+    .filter(v=>v!==undefined&&v!==null&&String(v).trim()!=='')
+    .map(v=>String(v).trim());
+  for(const id of ids){
+    const custom=demoFixtures.find(m=>String(m.id)===id || ('custom-'+String(m.id))===id);
+    if(custom)return custom;
   }
-  return custom||null;
+  /* Match by team names, tolerant of small differences such as punctuation/case. */
+  const norm=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+  const sh=norm(s.home||s.homeTeam||s.home_team);
+  const sa=norm(s.away||s.awayTeam||s.away_team);
+  if(sh&&sa){
+    const custom=demoFixtures.find(m=>norm(m.home_team)===sh&&norm(m.away_team)===sa);
+    if(custom)return custom;
+  }
+  return null;
 }
 async function ensureDemoFixturesForOpenBets(){
   if(!supabaseClient)return;
@@ -1331,12 +1340,7 @@ setInterval(()=>{if(document.visibilityState==='visible'&&document.getElementByI
 /* BlueStake demo settlement: FT -> WON credits the in-app demo balance once and shows a cup. */
 function bsSettlementKey(bet){ return 'bluestake_demo_settled_' + String(bet?.id || bet?.bookingCode || bet?.created_at || 'unknown'); }
 function bsSelectionFixture(sel){
-  if(!demoFixtures?.length)return null;
-  const id=sel?.fixture_id||sel?.fixtureId;
-  if(id){const x=demoFixtures.find(m=>String(m.id)===String(id));if(x)return x;}
-  const a=String(sel?.homeTeam||sel?.home||sel?.home_team||'').trim().toLowerCase();
-  const b=String(sel?.awayTeam||sel?.away||sel?.away_team||'').trim().toLowerCase();
-  return demoFixtures.find(m=>String(m.home_team||'').trim().toLowerCase()===a&&String(m.away_team||'').trim().toLowerCase()===b)||null;
+  return findDemoFixtureForSelection(sel);
 }
 function bsSelectionWon(sel,m){
   if(!m)return null;
@@ -1414,5 +1418,38 @@ async function checkBlueStakeDemoSettlements(){
 .bo-live-odds-row{display:flex;align-items:center;gap:9px;margin-top:12px}
 .bo-live-odds-row .bo-live-odds{margin-top:0}
 .bo-half-time{background:#eef1f5;color:#596273}
+</style>
+
+<style id="bluestake-openbets-final-v2">
+/* Final BlueStake Open Bets presentation */
+.blue-open-page{background:#f5f8ff!important;color:#17254a!important}
+.bo-header{background:linear-gradient(135deg,#2146b8 0%,#3158d0 100%)!important;color:#fff!important}
+.bo-help{color:#fff!important}
+.bo-balance,.bo-balance span{color:#fff!important}
+.bo-main-tabs button{background:#3d60c7!important;color:#fff!important}
+.bo-main-tabs button.active{background:#fff!important;color:#2146b8!important}
+.bo-filters{background:#fff!important}
+.bo-filters button{background:#eaf0ff!important;color:#2146b8!important;border:1px solid #d4def6!important}
+.bo-filters button.active{background:#2146b8!important;color:#fff!important;border-color:#2146b8!important}
+.bo-filters .bo-icon-btn{color:#2146b8!important}
+.bo-filters .bo-grid-btn{color:#8290ad!important}
+.bo-list{background:#f5f8ff!important}
+.bo-bet{border:1px solid #d9e2f3!important;box-shadow:0 3px 12px rgba(33,70,184,.10)!important}
+.bo-bet-head{border-bottom-color:#d9e2f3!important}
+.bo-leg{padding-left:52px!important}
+.bo-play{left:8px!important}
+.bo-finished-check{position:absolute;left:8px;top:49px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#18a957;color:#fff;font-size:18px;font-weight:900}
+.bo-line1{gap:8px!important}
+.bo-ball{margin-left:0!important;margin-right:2px!important}
+.bo-match-name{margin-top:13px!important}
+.bo-live-score{margin-left:0!important;padding-left:0!important;background:transparent!important;color:#18a957!important}
+.bo-live-odds{background:#e8f7ee!important;color:#17304b!important}
+.bo-cashout{background:#18a957!important}
+.bo-live{color:#168a49!important;background:#e8f7ee!important}
+.bo-open-state{background:#eef3ff!important;color:#2146b8!important}
+.bo-ft{background:#e8f7ee!important;color:#168a49!important}
+.bo-settled-win{background:#e8f7ee!important;color:#168a49!important}
+.bs-win-cup{background:#e8f7ee!important;color:#168a49!important}
+.bo-summary-row strong{color:#17254a!important}
 </style>
 </body></html>
