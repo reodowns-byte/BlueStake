@@ -365,7 +365,7 @@
         <div class="admin-field"><label>Away logo URL (optional)</label><div class="admin-logo-row"><input id="adminAwayLogoUrl" placeholder="https://…"><div id="adminAwayLogoPreview" class="admin-logo-preview">Away logo</div></div><input id="adminAwayLogoFile" type="file" accept="image/*" style="margin-top:8px;width:100%"></div>
       </div>
       <div class="admin-actions"><button type="button" id="adminSaveMatch" class="admin-primary" onclick="saveAdminMatch()">Create Fixture</button><button type="button" class="admin-secondary" onclick="resetAdminMatchForm()">Clear</button></div>
-      <div class="admin-note">Match clock: 45 minutes first half → 15-minute half-time → 45 minutes second half → FT. Markets and odds are simulated for this fixture and are not bookmaker/API-Football odds.</div>
+      <div class="admin-note">Match clock: 45 minutes first half → 15-minute half-time → 45 minutes second half → FT. The final score is used by the BlueStake simulation to advance the score during the match. Markets and odds are simulated and are not bookmaker/API-Football odds.</div>
       <div id="adminFormMessage" class="admin-note"></div>
     </div>
     <div class="admin-card"><h3>Created Fixtures</h3><div id="adminMatchList"><div class="empty">Loading…</div></div></div>
@@ -448,7 +448,7 @@ async function applyUser(user){
   currentUser=user;const name=user?.user_metadata?.display_name||user?.user_metadata?.full_name||user?.email?.split('@')[0]||'BlueStake User';
   localStorage.setItem('bluestakeUserName',name);
   await loadAdminState();
-  await loadDemoFixtures();
+  await loadDemoFixtures();startHomeSimulationClock();
   setLoggedInProfile(true,name);updateAuthButtons(true,name);closeAuth();go('homePage',0);
 }
 function updateAuthButtons(isLoggedIn,name){
@@ -552,15 +552,65 @@ function customMatchState(m,now=Date.now()){
   if(now<start)return {key:'NS',label:'SCHEDULED',elapsed:null,minute:null};
   const elapsed=Math.floor((now-start)/60000)+1;
   if(now>=end)return {key:'FT',label:'FT',elapsed:105,minute:90};
-  if(now<start+45*60000)return {key:'1H',label:'LIVE',elapsed,minute:Math.min(45,elapsed)};
-  if(now<start+60*60000)return {key:'HT',label:'HT',elapsed:45,minute:45};
-  return {key:'2H',label:'LIVE',elapsed,minute:Math.min(90,15+elapsed)};
+  if(now<start+45*60000)return {key:'1H',label:'1ST HALF',elapsed,minute:Math.min(45,elapsed)};
+  if(now<start+60*60000)return {key:'HT',label:'HALF-TIME',elapsed:45,minute:45};
+  return {key:'2H',label:'2ND HALF',elapsed,minute:Math.min(90,Math.max(46,elapsed-15))};
+}
+
+/* Deterministic simulated goal events.
+   The admin chooses only the final score; the simulation then advances the score
+   during the match instead of showing the final score from kickoff. */
+function simulatedGoalEvents(m){
+  const h=Math.max(0,Math.min(99,Number(m.final_home)||0));
+  const a=Math.max(0,Math.min(99,Number(m.final_away)||0));
+  const total=h+a;
+  if(!total)return [];
+  const events=[];
+  const add=(team,minute)=>events.push({team,minute});
+  const firstHalfTotal=Math.min(total, Math.max(0, Math.min(1, total)));
+  if(firstHalfTotal){
+    if(h>0)add('home',18);
+    else add('away',18);
+  }
+  let hLeft=h-(events.filter(e=>e.team==='home').length);
+  let aLeft=a-(events.filter(e=>e.team==='away').length);
+  const remaining=hLeft+aLeft;
+  const secondMinutes=[52,61,70,78,84,89,45,45,45,45];
+  let mi=0;
+  while(hLeft+aLeft>0){
+    const minute=secondMinutes[Math.min(mi,secondMinutes.length-1)] + Math.floor(mi/secondMinutes.length)*1;
+    if(hLeft>0 && aLeft>0){
+      const homeFirst=(h>=a ? (mi%2===0) : (mi%2!==0));
+      if(homeFirst){add('home',minute);hLeft--}
+      else{add('away',minute);aLeft--}
+    }else if(hLeft>0){add('home',minute);hLeft--}
+    else{add('away',minute);aLeft--}
+    mi++;
+  }
+  return events.sort((x,y)=>x.minute-y.minute);
+}
+function simulatedScore(m,now=Date.now()){
+  const st=customMatchState(m,now);
+  if(st.key==='NS')return {home:0,away:0,events:[]};
+  const elapsedMinute=st.key==='FT'?90:(st.key==='HT'?45:st.minute);
+  const events=simulatedGoalEvents(m);
+  let home=0,away=0;
+  events.forEach(e=>{
+    if(e.minute<=elapsedMinute){
+      if(e.team==='home')home++; else away++;
+    }
+  });
+  return {home,away,events};
+}
+function simulatedScoreText(m,now=Date.now()){
+  const s=simulatedScore(m,now);
+  return s.home+' — '+s.away;
 }
 function adminMatchHtml(m){
   const logo=(url,name)=>url?'<img src="'+esc(url)+'" alt="'+esc(name)+' logo">':'<div style="font-size:24px">⚽</div>';
-  const st=customMatchState(m);const cls=st.key==='FT'?'ft':st.key==='HT'?'ht':st.key==='1H'||st.key==='2H'?'live':'';
+  const st=customMatchState(m);const sc=simulatedScore(m);const cls=st.key==='FT'?'ft':st.key==='HT'?'ht':st.key==='1H'||st.key==='2H'?'live':'';
   const clock=st.key==='1H'||st.key==='2H'?st.label+' '+st.minute+"'":st.label;
-  return '<div class="admin-match"><div class="admin-match-head"><div><b>'+esc(m.competition||'Football')+'</b><div class="admin-match-meta">Start: '+(m.scheduled_at?new Date(m.scheduled_at).toLocaleString():'Not set')+' · End: '+(m.end_at?new Date(m.end_at).toLocaleString():'Not set')+'</div></div><span class="admin-clock '+cls+'">'+clock+'</span></div><div class="admin-match-teams"><div class="admin-team-mini">'+logo(m.home_logo_url,m.home_team)+esc(m.home_team)+'</div><div class="admin-final">'+esc(m.final_home)+' : '+esc(m.final_away)+'</div><div class="admin-team-mini">'+logo(m.away_logo_url,m.away_team)+esc(m.away_team)+'</div></div><div class="admin-actions"><button type="button" class="admin-secondary admin-edit-btn" data-admin-action="edit" data-match-id="'+esc(m.id)+'">Edit</button><button type="button" class="admin-danger admin-delete-btn" data-admin-action="delete" data-match-id="'+esc(m.id)+'">Delete</button></div></div>'
+  return '<div class="admin-match"><div class="admin-match-head"><div><b>'+esc(m.competition||'Football')+'</b><div class="admin-match-meta">Start: '+(m.scheduled_at?new Date(m.scheduled_at).toLocaleString():'Not set')+' · End: '+(m.end_at?new Date(m.end_at).toLocaleString():'Not set')+'</div></div><span class="admin-clock '+cls+'">'+clock+'</span></div><div class="admin-match-teams"><div class="admin-team-mini">'+logo(m.home_logo_url,m.home_team)+esc(m.home_team)+'</div><div class="admin-final">'+esc(sc.home)+' : '+esc(sc.away)+'</div><div class="admin-team-mini">'+logo(m.away_logo_url,m.away_team)+esc(m.away_team)+'</div></div><div class="admin-actions"><button type="button" class="admin-secondary admin-edit-btn" data-admin-action="edit" data-match-id="'+esc(m.id)+'">Edit</button><button type="button" class="admin-danger admin-delete-btn" data-admin-action="delete" data-match-id="'+esc(m.id)+'">Delete</button></div></div>'
 }
 async function loadAdminMatches(){
   const box=$('adminMatchList');if(!box||!isBlueStakeAdmin)return;box.innerHTML='<div class="empty"><div class="spinner"></div>Loading…</div>';
@@ -586,10 +636,17 @@ async function loadDemoFixtures(){
   demoFixtures=data;
   const logo=(u,n)=>u?'<img src="'+esc(u)+'" alt="'+esc(n)+' logo">':'<div style="font-size:28px">⚽</div>';
   box.innerHTML='<div class="info-card"><div class="custom-fixtures-title"><h3>Featured Fixtures</h3></div>'+data.map((m,i)=>{
-    const st=customMatchState(m);const when=m.scheduled_at?new Date(m.scheduled_at):null;const time=when&&!Number.isNaN(when.getTime())?when.toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'Time TBC';
-    const display=st.key==='1H'||st.key==='2H'?'<span class="custom-live-badge"><span class="custom-live-dot"></span>LIVE '+st.minute+"'":st.label;
-    return '<article class="custom-fixture" onclick="openCustomMatch('+i+')" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \')openCustomMatch('+i+')"><div class="custom-fixture-top"><span class="custom-fixture-league">'+esc(m.competition||'Football')+'</span><span class="custom-fixture-time '+(st.key==='1H'||st.key==='2H'?'live':st.key==='HT'?'ht':st.key==='FT'?'ft':'')+'">'+display+'</span></div><div class="custom-fixture-teams"><div class="custom-team">'+logo(m.home_logo_url,m.home_team)+esc(m.home_team)+'</div><div class="custom-vs">VS</div><div class="custom-team">'+logo(m.away_logo_url,m.away_team)+esc(m.away_team)+'</div></div><div class="custom-fixture-footer">'+(st.key==='1H'||st.key==='2H'?'Live now · ':st.key==='HT'?'Half-time · ':st.key==='FT'?'Full time · ':'')+'Tap to view Markets</div></article>';
+    const st=customMatchState(m),sc=simulatedScore(m);
+    const display=st.key==='1H'||st.key==='2H'?'<span class="custom-live-badge"><span class="custom-live-dot"></span>'+st.minute+"' · "+sc.home+' - '+sc.away+'</span>':st.key==='HT'?'HT · '+sc.home+' - '+sc.away:st.key==='FT'?'FT · '+sc.home+' - '+sc.away:st.label;
+    const footer=st.key==='1H'?'1st Half · '+st.minute+"' · "+sc.home+' - '+sc.away+' · Tap to view Markets':st.key==='HT'?'Half-time · '+sc.home+' - '+sc.away+' · Tap to view Markets':st.key==='2H'?'2nd Half · '+st.minute+"' · "+sc.home+' - '+sc.away+' · Tap to view Markets':st.key==='FT'?'Full time · '+sc.home+' - '+sc.away+' · Tap to view Markets':'Tap to view Markets';
+    return '<article class="custom-fixture" onclick="openCustomMatch('+i+')" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \')openCustomMatch('+i+')"><div class="custom-fixture-top"><span class="custom-fixture-league">'+esc(m.competition||'Football')+'</span><span class="custom-fixture-time '+(st.key==='1H'||st.key==='2H'?'live':st.key==='HT'?'ht':st.key==='FT'?'ft':'')+'">'+display+'</span></div><div class="custom-fixture-teams"><div class="custom-team">'+logo(m.home_logo_url,m.home_team)+esc(m.home_team)+'</div><div class="custom-vs">'+esc(sc.home)+' - '+esc(sc.away)+'</div><div class="custom-team">'+logo(m.away_logo_url,m.away_team)+esc(m.away_team)+'</div></div><div class="custom-fixture-footer">'+footer+'</div></article>';
   }).join('')+'</div>';
+}
+function startHomeSimulationClock(){
+  clearInterval(window.homeSimulationClockTimer);
+  window.homeSimulationClockTimer=setInterval(()=>{
+    if(demoFixtures?.length) loadDemoFixtures();
+  },1000);
 }
 function openCustomMatch(index){
   const m=demoFixtures[Number(index)];if(!m)return;
@@ -599,11 +656,19 @@ function openCustomMatch(index){
 function updateCustomMarketHeader(){
   const m=currentMatch?.customData;if(!m)return;const st=customMatchState(m);const start=new Date(m.scheduled_at).getTime();
   $('marketTitle').textContent=(m.home_team||'Home')+' vs '+(m.away_team||'Away');$('marketLeague').textContent=(m.competition||'Football');$('marketHome').textContent=m.home_team||'Home';$('marketAway').textContent=m.away_team||'Away';
-  let score='—',timeText='';if(st.key==='1H'||st.key==='2H'){score='0 — 0';timeText=st.minute+"'"}else if(st.key==='HT'){score='0 — 0';timeText='HT'}else if(st.key==='FT'){score=String(m.final_home)+' — '+String(m.final_away);timeText='FT'}else if(start){timeText=new Date(start).toLocaleString([], {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}
+  const sc=simulatedScore(m);let score='—',timeText='';if(st.key==='1H'||st.key==='2H'){score=sc.home+' — '+sc.away;timeText=st.minute+"'"}else if(st.key==='HT'){score=sc.home+' — '+sc.away;timeText='HT'}else if(st.key==='FT'){score=sc.home+' — '+sc.away;timeText='FT'}else if(start){timeText=new Date(start).toLocaleString([], {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}
   $('marketScore').innerHTML=esc(score)+'<span class="market-time">'+esc(timeText)+'</span>';
   $('marketStatus').textContent=st.label;$('marketStatus').style.background=(st.key==='1H'||st.key==='2H')?'#fff0f0':st.key==='HT'?'#fff7e6':st.key==='FT'?'#e9f8ef':'#e8f2f8';$('marketStatus').style.color=(st.key==='1H'||st.key==='2H')?'#d93636':st.key==='HT'?'#a86b00':st.key==='FT'?'#16804c':'#0d5b87';
 }
-function startCustomClock(){clearInterval(window.customClockTimer);window.customClockTimer=setInterval(()=>{if(!currentMatch?.customData)return;updateCustomMarketHeader();if(customMatchState(currentMatch.customData).key==='FT')clearInterval(window.customClockTimer);},1000)}
+function startCustomClock(){
+  clearInterval(window.customClockTimer);
+  window.customClockTimer=setInterval(()=>{
+    if(!currentMatch?.customData)return;
+    updateCustomMarketHeader();
+    const st=customMatchState(currentMatch.customData);
+    if(st.key==='FT')clearInterval(window.customClockTimer);
+  },1000);
+}
 function customOdd(value,odd){return {value,odd:String(Number(odd).toFixed(2))}}
 function renderCustomMarkets(){
   const m=currentMatch?.customData||{};let groups=Array.isArray(m.markets_json)?m.markets_json:[];if(!groups.length)groups=makeSimOdds(String(m.id||'').length+new Date(m.scheduled_at||Date.now()).getMinutes());
