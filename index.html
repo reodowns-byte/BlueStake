@@ -240,11 +240,30 @@
 /* BlueStake authentication configuration.
    Use your Supabase Project URL and Publishable/anon key here.
    Never put a Supabase service-role/secret key in this file. */
-const SUPABASE_URL = window.BLUESTAKE_SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
-const SUPABASE_PUBLISHABLE_KEY = window.BLUESTAKE_SUPABASE_PUBLISHABLE_KEY || 'YOUR_SUPABASE_PUBLISHABLE_KEY';
-const SUPABASE_READY = SUPABASE_URL.startsWith('http') && !SUPABASE_URL.includes('YOUR_') && !SUPABASE_PUBLISHABLE_KEY.includes('YOUR_');
-const supabaseClient = SUPABASE_READY && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+let SUPABASE_URL = '';
+let SUPABASE_PUBLISHABLE_KEY = '';
+let SUPABASE_READY = false;
+let supabaseClient = null;
 let fixtures=[];let selectedLeague='All';let authMode='join';let currentUser=null;
+
+async function ensureSupabase(){
+  if(supabaseClient) return true;
+  try{
+    const response=await fetch('/api/config',{cache:'no-store'});
+    if(!response.ok) throw new Error('Configuration request failed');
+    const config=await response.json();
+    SUPABASE_URL=String(config.supabaseUrl||'').trim();
+    SUPABASE_PUBLISHABLE_KEY=String(config.supabasePublishableKey||'').trim();
+    SUPABASE_READY=SUPABASE_URL.startsWith('http') && !!SUPABASE_PUBLISHABLE_KEY && !!window.supabase;
+    if(!SUPABASE_READY) throw new Error('Supabase configuration is missing');
+    supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+    return true;
+  }catch(error){
+    SUPABASE_READY=false;
+    supabaseClient=null;
+    return false;
+  }
+}
 const $=id=>document.getElementById(id);
 function go(id,idx){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.body.classList.toggle('profile-view',id==='profilePage');document.querySelectorAll('.bottom button').forEach((x,i)=>x.classList.toggle('active',i===idx));window.scrollTo({top:0,behavior:'smooth'});if(id==='homePage')loadLive()}
 function openAuth(mode){
@@ -261,7 +280,7 @@ function closeAuth(){$('authBackdrop').classList.remove('open')}
 function setAuthError(message){$('authError').textContent=message||''}
 async function submitAuth(){
   setAuthError('');
-  if(!SUPABASE_READY||!supabaseClient){setAuthError('Authentication is not configured yet. Add the Supabase Project URL and Publishable/anon key first.');return}
+  if(!await ensureSupabase()){setAuthError('BlueStake authentication could not connect to Supabase. Please try again.');return}
   const email=(authMode==='join'?$('joinEmail').value:$('loginEmail').value).trim().toLowerCase();
   if(!email){setAuthError('Enter your email address.');return}
   if(authMode==='join'){
@@ -280,7 +299,7 @@ async function submitAuth(){
   }
 }
 async function resetPassword(){
-  if(!SUPABASE_READY||!supabaseClient){setAuthError('Authentication is not configured yet.');return}
+  if(!await ensureSupabase()){setAuthError('BlueStake authentication could not connect to Supabase. Please try again.');return}
   const email=$('loginEmail').value.trim().toLowerCase();if(!email){setAuthError('Enter your email first.');return}
   const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+window.location.pathname});
   setAuthError(error?error.message:'Password reset instructions have been sent to your email.');
@@ -302,7 +321,8 @@ function setLoggedInProfile(isLoggedIn,name){
   if(name){$('memberName').innerHTML=esc(name)+' <span class="member-arrow">›</span>';const tier=$('memberTier');if(tier)tier.textContent='BlueStake Member'}
 }
 async function initAuth(){
-  if(!SUPABASE_READY||!supabaseClient){updateAuthButtons(false);setLoggedInProfile(false);return}
+  const ready=await ensureSupabase();
+  if(!ready){updateAuthButtons(false);setLoggedInProfile(false);return}
   const {data}=await supabaseClient.auth.getSession();if(data.session)await applyUser(data.session.user);else{updateAuthButtons(false);setLoggedInProfile(false)}
   supabaseClient.auth.onAuthStateChange(async(_event,session)=>{if(session&&session.user)await applyUser(session.user);else{currentUser=null;setLoggedInProfile(false);updateAuthButtons(false)}});
 }
