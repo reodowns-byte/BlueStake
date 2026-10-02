@@ -89,7 +89,7 @@
 .profile-loyalty{margin-top:28px;min-height:72px;border-radius:14px;background:linear-gradient(90deg,#334252,#273140);display:flex;align-items:center;justify-content:space-between;padding:14px 18px;font-size:19px;font-weight:800}
 .profile-loyalty span:last-child{color:#13e5bd}
 .profile-stats{margin-top:28px;background:#353b48;border-radius:15px;display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden}
-.profile-stat{min-height:118px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:2px solid #596170;font-size:17px;line-height:1.3}
+.profile-stat{background:none;border:0;color:inherit;font:inherit;min-height:118px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-right:2px solid #596170;font-size:17px;line-height:1.3}
 .profile-stat:last-child{border-right:0}
 .profile-stat-icon{font-size:25px;margin-bottom:10px}
 .profile-links{background:#fff;color:#343a47}
@@ -149,7 +149,21 @@
 </section>
 <section id="matchesPage" class="page"><div class="info-card"><h2>Matches</h2><p>Live matches are shown on the BlueStake home screen. Select Live below to return to them.</p><button class="primary" onclick="go('homePage',0)">View Live Matches</button></div></section>
 <section id="bookingsPage" class="page"><div class="info-card"><h2>Bookings</h2><p>Enter a BlueStake booking code to find a saved booking.</p><input class="field" placeholder="E.G. BLUE7K9P2"><button class="primary" style="margin-top:12px">Find Booking</button></div></section>
-<section id="walletPage" class="page"><div class="info-card"><h2>Wallet</h2><p>Your wallet and transaction features will be connected to a secure backend before real funds are handled.</p></div></section>
+<section id="walletPage" class="page">
+  <div class="info-card"><h2>Wallet</h2><p id="walletUserNote">Log in to view your BlueStake wallet.</p></div>
+  <div class="info-card" id="walletCard" style="display:none">
+    <div style="color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.4px">CURRENT BALANCE</div>
+    <div id="walletBalanceValue" style="font-size:34px;font-weight:950;margin:8px 0 18px">GHS 0.00</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="primary" onclick="demoDeposit()">Deposit</button>
+      <button class="primary" style="background:#fff;color:var(--blue);border:1px solid var(--blue)" onclick="demoWithdraw()">Withdraw</button>
+    </div>
+  </div>
+  <div class="info-card" id="transactionCard" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Transaction Records</h2><button class="refresh" style="height:40px;padding:0 12px" onclick="loadWalletData()">↻</button></div>
+    <div id="transactionList" style="margin-top:12px;color:var(--muted)">Loading…</div>
+  </div>
+</section>
 <section id="profilePage" class="page profile-page">
   <div id="loggedOutProfile">
     <div class="profile-hero">
@@ -165,9 +179,9 @@
       </div>
       <div class="profile-loyalty"><span>BlueStake Loyalty</span><span>Log in to join &nbsp;›</span></div>
       <div class="profile-stats">
-        <div class="profile-stat"><div class="profile-stat-icon">▤</div><div>BlueStake History</div></div>
-        <div class="profile-stat"><div class="profile-stat-icon">↻</div><div>Transaction<br>Records</div></div>
-        <div class="profile-stat"><div class="profile-stat-icon">♔</div><div>Gifts (0)<br>Lucky Wheel (0)</div></div>
+        <button class="profile-stat" onclick="go('walletPage',3);loadWalletData()"><div class="profile-stat-icon">▤</div><div>BlueStake History</div></button>
+        <button class="profile-stat" onclick="go('walletPage',3);loadWalletData()"><div class="profile-stat-icon">↻</div><div>Transaction<br>Records</div></button>
+        <div class="profile-stat"><div class="profile-stat-icon">♔</div><div id="profileGifts">Gifts (0)<br>Lucky Wheel (0)</div></div>
       </div>
     </div>
     <div class="profile-links">
@@ -184,18 +198,18 @@
         <button id="memberName" class="member-name" onclick="openAuth('login')" style="background:none;color:#fff;padding:0">BlueStake User <span class="member-arrow">›</span></button>
         <div class="member-gear">⚙</div>
       </div>
-      <div class="tier-row"><span>Loyalty Tier:</span><span>🏅</span></div>
+      <div class="tier-row"><span>Loyalty Tier:</span><span id="memberTier">🏅 Bronze</span></div>
       <div class="tier-bar"><div class="tier-fill"></div></div>
-      <div class="member-balance"><span>Total Balance</span><strong>GHS 0.00 ◉</strong></div>
+      <div class="member-balance"><span>Total Balance</span><strong id="memberBalance">GHS 0.00 ◉</strong></div>
       <div class="profile-actions">
         <button class="profile-action profile-deposit" onclick="alert('Demo only: no real deposit was processed.')">▣ &nbsp; Deposit</button>
         <button class="profile-action profile-withdraw" onclick="alert('Demo only: no real withdrawal or activation payment was processed.')">▣ &nbsp; Withdraw</button>
       </div>
       <div class="profile-loyalty"><span>BlueStake Loyalty</span><span>Earn Rewards &nbsp;›</span></div>
       <div class="profile-stats">
-        <div class="profile-stat"><div class="profile-stat-icon">▤</div><div>BlueStake History</div></div>
-        <div class="profile-stat"><div class="profile-stat-icon">↻</div><div>Transaction<br>Records</div></div>
-        <div class="profile-stat"><div class="profile-stat-icon">♔</div><div>Gifts (0)<br>Lucky Wheel (0)</div></div>
+        <button class="profile-stat" onclick="go('walletPage',3);loadWalletData()"><div class="profile-stat-icon">▤</div><div>BlueStake History</div></button>
+        <button class="profile-stat" onclick="go('walletPage',3);loadWalletData()"><div class="profile-stat-icon">↻</div><div>Transaction<br>Records</div></button>
+        <div class="profile-stat"><div class="profile-stat-icon">♔</div><div id="profileGifts">Gifts (0)<br>Lucky Wheel (0)</div></div>
       </div>
     </div>
 
@@ -305,9 +319,70 @@ async function resetPassword(){
   setAuthError(error?error.message:'Password reset instructions have been sent to your email.');
 }
 async function applyUser(user){
-  currentUser=user;const name=user?.user_metadata?.display_name||user?.user_metadata?.full_name||user?.email?.split('@')[0]||'BlueStake User';
-  localStorage.setItem('bluestakeUserName',name);setLoggedInProfile(true,name);updateAuthButtons(true,name);closeAuth();go('profilePage',4);
+  currentUser=user;
+  const name=user?.user_metadata?.display_name||user?.user_metadata?.full_name||user?.email?.split('@')[0]||'BlueStake User';
+  localStorage.setItem('bluestakeUserName',name);
+  setLoggedInProfile(true,name);
+  updateAuthButtons(true,name);
+  closeAuth();
+  await loadUserProfile();
+  go('profilePage',4);
 }
+
+function moneyGHS(value){
+  return 'GHS '+Number(value||0).toLocaleString('en-GH',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+async function loadUserProfile(){
+  if(!supabaseClient||!currentUser) return;
+  try{
+    let {data,error}=await supabaseClient.from('profiles').select('id,full_name,email,loyalty_tier,balance,gifts_count,lucky_wheel_count,daily_streak,created_at').eq('id',currentUser.id).maybeSingle();
+    if(error) throw error;
+    if(!data){
+      setAuthError('Your account profile could not be loaded.');
+      return;
+    }
+    const displayName=data.full_name||currentUser.user_metadata?.display_name||currentUser.email?.split('@')[0]||'BlueStake User';
+    const tier=data.loyalty_tier||'Bronze';
+    const balance=Number(data.balance||0);
+    $('memberName').innerHTML=esc(displayName)+' <span class="member-arrow">›</span>';
+    $('memberTier').textContent='🏅 '+tier;
+    $('memberBalance').textContent=moneyGHS(balance)+' ◉';
+    $('profileGifts').innerHTML='Gifts ('+Number(data.gifts_count||0)+')<br>Lucky Wheel ('+Number(data.lucky_wheel_count||0)+')';
+    const streakEls=document.querySelectorAll('.logged-links .profile-link');
+    if(streakEls[1]) streakEls[1].querySelector('.profile-link-right').textContent=Number(data.daily_streak||0)+' ›';
+    $('walletUserNote').textContent='Wallet for '+displayName;
+    $('walletBalanceValue').textContent=moneyGHS(balance);
+    $('walletCard').style.display='block';
+    $('transactionCard').style.display='block';
+  }catch(error){
+    console.error(error);
+  }
+}
+
+async function loadWalletData(){
+  if(!currentUser||!supabaseClient){
+    $('walletCard').style.display='none';$('transactionCard').style.display='none';$('walletUserNote').textContent='Log in to view your BlueStake wallet.';return;
+  }
+  await loadUserProfile();
+  try{
+    const {data,error}=await supabaseClient.from('transactions').select('id,type,amount,status,description,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(30);
+    if(error) throw error;
+    const list=$('transactionList');
+    if(!data?.length){list.innerHTML='<div style="padding:16px 0;text-align:center">No transactions yet.</div>';return;}
+    list.innerHTML=data.map(t=>{
+      const label=String(t.type||'transaction').replace(/^./,c=>c.toUpperCase());
+      const date=new Date(t.created_at).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
+      const status=String(t.status||'pending');
+      return '<div style="padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px"><div><strong>'+esc(label)+'</strong><div style="font-size:12px;margin-top:4px">'+esc(t.description||'BlueStake transaction')+' · '+esc(date)+'</div></div><div style="text-align:right"><strong>'+moneyGHS(t.amount)+'</strong><div style="font-size:12px;margin-top:4px;text-transform:capitalize">'+esc(status)+'</div></div></div>';
+    }).join('');
+  }catch(error){
+    $('transactionList').innerHTML='<div style="color:#c62828">Transaction records could not be loaded.</div>';
+  }
+}
+
+function demoDeposit(){alert('Demo only: no real deposit was processed.');}
+function demoWithdraw(){alert('Demo only: no real withdrawal or activation payment was processed.');}
 function updateAuthButtons(isLoggedIn,name){
   const box=document.querySelector('.auth');if(!box)return;
   box.innerHTML=isLoggedIn?`<button class="login" onclick="go('profilePage',4)">${esc(name||'Account')}</button><button class="join" onclick="signOutUser()">Log out</button>`:`<button class="join" onclick="openAuth('join')">Join</button><button class="login" onclick="openAuth('login')">Login</button>`;
