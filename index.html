@@ -136,6 +136,17 @@
 .money-body{padding:16px;background:#f8fafc}.money-box{background:#fff;border:1px solid #aeb7c7;border-radius:8px;min-height:76px;display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:14px}.money-icon{font-size:26px}.money-box-main{flex:1;color:#3f4858;font-size:17px}.money-box-right{color:#566173;font-weight:700}.money-arrow{font-size:27px;color:#9ba5b5}.money-balance{text-align:right;color:#9aa3b2;font-size:16px;margin:6px 0 12px}.money-withdrawable{text-align:right;color:#3f4858;font-size:16px;margin:-4px 0 14px}.money-amount{height:78px;border:1px solid #aeb7c7;border-radius:8px;background:#fff;display:flex;align-items:center;padding:0 16px;margin-bottom:14px}.money-amount input{width:100%;border:0;outline:0;font-size:18px;color:#3f4858;background:transparent}.money-amount input::placeholder{color:#3f4858}.money-min{color:#9aa3b2;white-space:nowrap;font-size:17px}.money-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}.money-quick button{height:54px;background:#fff;border:1px solid #aeb7c7;border-radius:5px;color:#3f4858;font-weight:800;font-size:16px}.money-submit{width:100%;height:58px;border-radius:8px;background:#0d5b87;color:#fff;font-size:18px;font-weight:900}.money-submit:disabled{background:#d9dee7;color:#929aaa}.money-note{color:#8e98a8;font-size:14px;line-height:1.45;margin-top:18px}.money-note ol{padding-left:23px;margin:0}.money-input-box{padding-right:12px}.money-box-input{width:100%;height:46px;border:0;outline:0;background:transparent;color:#3f4858;font-size:17px;min-width:0}.money-box-input::placeholder{color:#8e98a8}.money-select-box{cursor:pointer}.money-network{width:100%;height:46px;border:0;outline:0;background:transparent;color:#3f4858;font-size:17px;font-weight:600;min-width:0}.money-network:invalid{color:#8e98a8}.money-reference{margin-top:14px}.money-reference input{width:100%;height:50px;border:1px solid #d2dae6;border-radius:9px;padding:0 13px;outline:0}.money-demo{margin:0 0 14px;padding:10px 12px;border-radius:9px;background:#eef5fa;color:#315b77;font-size:12px;line-height:1.4}.money-status{margin-top:12px;font-size:13px;font-weight:800;color:#176b48;min-height:18px}.money-status.error{color:#c62828}
 @media(max-width:480px){.money-modal{margin:0;border-radius:20px}.money-body{padding:12px}.money-title{font-size:20px}.money-box-main{font-size:16px}.money-quick button{font-size:14px}}
 
+
+.open-bets-card{background:#fff;border:1px solid #d9e2ef;border-radius:18px;overflow:hidden;margin-top:14px;box-shadow:0 4px 14px rgba(20,45,80,.04)}
+.open-bets-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #e4e9f0}
+.open-bets-tabs button{height:54px;background:#fff;color:#7b879d;font-size:15px;font-weight:850;position:relative}
+.open-bets-tabs button.active{color:#3158d4}
+.open-bets-tabs button.active:after{content:"";position:absolute;left:16px;right:16px;bottom:0;height:3px;background:#3158d4;border-radius:3px}
+.open-bets-empty{text-align:center;padding:48px 20px 54px;color:#7b879d}
+.open-bets-icon{width:64px;height:64px;border-radius:50%;background:#eef3ff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:29px}
+.open-bets-empty h3{margin:0 0 8px;color:#1b2948;font-size:20px}
+.open-bets-empty p{margin:0;line-height:1.5;font-size:14px}
+
 @media(min-width:760px){.content{max-width:780px;margin:auto}.top{padding-left:max(18px,calc((100vw - 780px)/2));padding-right:max(18px,calc((100vw - 780px)/2))}.bottom{left:50%;right:auto;transform:translateX(-50%);width:min(780px,100%);border-radius:18px 18px 0 0}.promo-card{min-width:140px}}
 
 /* Match market details */
@@ -164,19 +175,19 @@
 <div class="darkbar" style="margin-top:0"><div class="darktabs"><button class="active">1X2</button><button>O/U</button><button>DC</button><button>1st Half O/U</button><button>Handicap</button><button>Home</button></div></div>
 <div id="matches" class="match-list"><div class="empty"><div class="spinner"></div>Loading live matches…</div></div>
 </section>
-<section id="matchesPage" class="page">
-  <div class="matches-page-head">
-    <div>
-      <h2>Upcoming Matches</h2>
-      <p>Browse upcoming football matches and tap any match to view its available markets.</p>
+<section id="openBetsPage" class="page">
+  <div class="info-card">
+    <h2>Open Bets</h2>
+    <p>View your currently open bets and their status here.</p>
+  </div>
+  <div class="open-bets-card">
+    <div class="open-bets-tabs"><button class="active">Open Bets</button><button>Settled Bets</button></div>
+    <div class="open-bets-empty">
+      <div class="open-bets-icon">🎟</div>
+      <h3>No Open Bets</h3>
+      <p>Your open bets will appear here after you place a bet.</p>
     </div>
-    <button class="refresh" onclick="loadUpcoming()">↻ Refresh</button>
   </div>
-  <div class="matches-tools">
-    <input id="upcomingSearch" class="search" placeholder="Search team or league" oninput="renderUpcoming()">
-  </div>
-  <div id="upcomingChips" class="chips"></div>
-  <div id="upcomingMatches" class="match-list"><div class="empty"><div class="spinner"></div>Loading upcoming matches…</div></div>
 </section>
 <section id="bookingsPage" class="page"><div class="info-card"><h2>Bookings</h2><p>Enter a BlueStake booking code to find a saved booking.</p><input class="field" placeholder="E.G. BLUE7K9P2"><button class="primary" style="margin-top:12px">Find Booking</button></div></section>
 <section id="walletPage" class="page"><div class="info-card"><h2>BlueStake Wallet</h2><p>Manage your deposit and withdrawal requests from one place.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px"><button class="primary" onclick="openMoney('deposit')">Deposit</button><button class="primary" style="background:#fff;color:var(--blue);border:1px solid var(--blue)" onclick="openMoney('withdraw')">Withdraw</button></div><p style="font-size:12px;margin-top:14px">Demo only: requests are recorded as pending and no real funds are processed.</p></div></section>
@@ -298,8 +309,10 @@
   <div class="market-filter"><button class="active" onclick="filterMarket('All',this)">All</button><button onclick="filterMarket('Main',this)">Main</button><button onclick="filterMarket('Goals',this)">Goals</button><button onclick="filterMarket('Half',this)">Half</button><button onclick="filterMarket('Bookings',this)">Bookings</button><button onclick="filterMarket('Corners',this)">Corners</button></div>
   <div class="market-content"><div class="bookmaker-note" id="bookmakerNote">Loading available markets…</div><div id="marketBody" class="market-loading"><div class="market-spinner"></div>Loading markets…</div></div>
 </div>
-<nav class="bottom"><button class="active" onclick="go('homePage',0)"><span class="bi">⌂</span>Live</button><button onclick="go('matchesPage',1)"><span class="bi">⚽</span>Matches</button><button onclick="go('bookingsPage',2)"><span class="bi">🎟</span>Bookings</button><button onclick="go('walletPage',3)"><span class="bi">▣</span>Wallet</button><button onclick="go('profilePage',4)"><span class="bi">●</span>Profile</button></nav>
+
+
 </div>
+<nav class="bottom"><button class="active" onclick="go('homePage',0)"><span class="bi">⌂</span>Live</button><button onclick="go('openBetsPage',1)"><span class="bi">🎟</span>Open Bets</button><button onclick="go('bookingsPage',2)"><span class="bi">🎫</span>Bookings</button><button onclick="go('walletPage',3)"><span class="bi">▣</span>Wallet</button><button onclick="go('profilePage',4)"><span class="bi">●</span>Profile</button></nav>
 <div id="authBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeAuth()"><div class="modal"><div class="modal-head"><h2 id="authTitle">Join BlueStake</h2><button class="close" onclick="closeAuth()">×</button></div><div class="modal-body"><div class="auth-tabs"><button id="joinTab" onclick="openAuth('join')">Join</button><button id="loginTab" onclick="openAuth('login')">Login</button></div><div id="joinFields"><label>NAME</label><input class="field" id="name" autocomplete="name" placeholder="Your name"><label>EMAIL</label><input class="field" id="joinEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>PASSWORD</label><input class="field" id="joinPassword" type="password" autocomplete="new-password" placeholder="Create a password"><label>CONFIRM PASSWORD</label><input class="field" id="confirmPassword" type="password" autocomplete="new-password" placeholder="Confirm your password"></div><div id="loginFields"><label>EMAIL</label><input class="field" id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>PASSWORD</label><input class="field" id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><button class="forgot" type="button" onclick="resetPassword()">Forgot password?</button></div><div id="authError" class="auth-error" role="alert"></div><button id="authContinue" class="continue" onclick="submitAuth()">Create Account</button><div id="authNote" class="demo-note">Secure authentication is handled by Supabase. Your password is not stored in BlueStake.</div></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -331,7 +344,7 @@ async function ensureSupabase(){
   }
 }
 const $=id=>document.getElementById(id);
-function go(id,idx){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.body.classList.toggle('profile-view',id==='profilePage');document.querySelectorAll('.bottom button').forEach((x,i)=>x.classList.toggle('active',i===idx));window.scrollTo({top:0,behavior:'smooth'});if(id==='homePage')loadLive();if(id==='matchesPage')loadUpcoming()}
+function go(id,idx){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.body.classList.toggle('profile-view',id==='profilePage');document.querySelectorAll('.bottom button').forEach((x,i)=>x.classList.toggle('active',i===idx));window.scrollTo({top:0,behavior:'smooth'});if(id==='homePage')loadLive()}
 function openAuth(mode){
   authMode=mode;$('authBackdrop').classList.add('open');
   $('authTitle').textContent=mode==='join'?'Join BlueStake':'Login to BlueStake';
