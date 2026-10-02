@@ -214,6 +214,85 @@
 .bo-empty{background:#fff;padding:60px 20px;text-align:center;color:#89909e;box-shadow:0 1px 7px rgba(0,0,0,.08)}
 @media(max-width:520px){.blue-open-page{margin:-18px -14px 0}.bo-header{padding-left:18px;padding-right:18px}.bo-main-tabs button{font-size:17px}.bo-filters{padding-left:12px}.bo-filters .bo-icon-btn{margin-left:auto}.bo-list{padding-left:18px;padding-right:18px}.bo-line1{font-size:18px}.bo-match-name{font-size:16px}.bo-single{grid-template-columns:1fr}.bo-single .bo-cashout{width:100%}.bo-head-actions{gap:4px}.bo-head-actions button{font-size:13px;padding:8px 5px}}
 </style>
+
+<style id="bluestake-openbets-colors">
+:root{
+  --bs-deep:#2146b8;
+  --bs-deep-2:#3158d0;
+  --bs-white:#ffffff;
+  --bs-soft:#f3f6fc;
+  --bs-border:#d9e2f3;
+  --bs-text:#17254a;
+  --bs-muted:#74819b;
+  --bs-green:#18a957;
+  --bs-green-soft:#e8f7ee;
+}
+.open-bets-page,
+.openbets-wrap,
+.bet-history-wrap{
+  background:var(--bs-white)!important;
+  color:var(--bs-text)!important;
+}
+.open-bets-header,
+.cashout-header{
+  background:linear-gradient(135deg,var(--bs-deep),var(--bs-deep-2))!important;
+  color:#fff!important;
+}
+.open-bets-tabs .active,
+.openbets-tab.active{
+  color:var(--bs-deep)!important;
+  border-bottom-color:var(--bs-deep)!important;
+}
+.open-bets-filter.active,
+.openbets-filter.active{
+  background:var(--bs-deep)!important;
+  color:#fff!important;
+}
+.open-bet-card{
+  border-color:var(--bs-border)!important;
+  background:#fff!important;
+}
+.open-bet-card .live-label,
+.live-badge{
+  color:var(--bs-green)!important;
+  background:var(--bs-green-soft)!important;
+}
+.open-bet-card .match-name,
+.open-bet-card .selection,
+.open-bet-card .score{
+  color:var(--bs-text)!important;
+}
+.open-bet-card .match-time,
+.open-bet-card .muted{
+  color:var(--bs-muted)!important;
+}
+.open-bet-card .cashout-value{
+  color:var(--bs-green)!important;
+}
+.cashout-btn,
+.cashout-button{
+  background:var(--bs-green)!important;
+  color:#fff!important;
+  border-color:var(--bs-green)!important;
+}
+.open-bet-card .edit-bet,
+.edit-bet{
+  color:var(--bs-deep)!important;
+}
+.open-bets-bottom-nav .active,
+.bottom-nav .active{
+  color:var(--bs-deep)!important;
+}
+</style>
+
+
+<style id="bluestake-settlement-style">
+.bs-win-cup{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#e8f7ee;color:#159447;font-size:21px;margin-right:8px}
+.bs-settled-win{border:2px solid #1aa257!important;background:#f7fff9!important}
+.bs-settled-lost{border:2px solid #d5dbea!important}
+.bs-settlement-banner{margin:12px 0;padding:12px 14px;border-radius:10px;background:#e8f7ee;color:#126f3b;font-weight:800}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -944,11 +1023,30 @@ async function settleOpenBets(){
   if(newly.length){saveOpenBets(remaining);saveSettledBets([...newly,...settled]);}
   return {remaining,newly};
 }
+function findDemoFixtureForSelection(s){
+  const id=String(s.customId||s.fixtureId||'');
+  let custom=demoFixtures.find(m=>String(m.id)===id);
+  if(custom)return custom;
+  const sh=String(s.home||'').trim().toLowerCase();
+  const sa=String(s.away||'').trim().toLowerCase();
+  if(sh&&sa){
+    custom=demoFixtures.find(m=>String(m.home_team||'').trim().toLowerCase()===sh&&String(m.away_team||'').trim().toLowerCase()===sa);
+  }
+  return custom||null;
+}
+async function ensureDemoFixturesForOpenBets(){
+  if(!supabaseClient)return;
+  if(demoFixtures.length)return;
+  try{
+    const {data,error}=await supabaseClient.from('bluestake_demo_matches').select('*').eq('is_published',true).order('scheduled_at',{ascending:true});
+    if(!error&&Array.isArray(data))demoFixtures=data;
+  }catch{}
+}
 function getSelectionLiveInfo(s){
-  const custom=demoFixtures.find(m=>String(m.id)===String(s.customId||s.fixtureId||''));
+  const custom=findDemoFixtureForSelection(s);
   if(custom){
     const st=customMatchState(custom),sc=simulatedScore(custom);
-    return {live:['1H','HT','2H'].includes(st.key),phase:st.key==='1H'?"H1":st.key==='2H'?"H2":st.key==='HT'?'HT':st.key==='FT'?'FT':'',minute:st.minute,homeScore:sc.home,awayScore:sc.away,home:s.home,away:s.away};
+    return {live:['1H','HT','2H'].includes(st.key),phase:st.key==='1H'?"H1":st.key==='2H'?"H2":st.key==='HT'?'HT':st.key==='FT'?'FT':'',minute:st.minute,homeScore:sc.home,awayScore:sc.away,home:s.home||custom.home_team,away:s.away||custom.away_team};
   }
   const id=Number(s.matchId);const f=fixtures.find(x=>Number(x?.fixture?.id)===id);
   if(f){const st=f.fixture?.status||{},g=f.goals||{};const live=['1H','2H','HT'].includes(String(st.short||''));return {live,phase:st.short==='1H'?'H1':st.short==='2H'?'H2':st.short==='HT'?'HT':st.short==='FT'?'FT':'',minute:st.elapsed,homeScore:g.home??0,awayScore:g.away??0,home:s.home,away:s.away};}
@@ -986,13 +1084,15 @@ function openBetHtml(b){
     const score=x.homeScore!==null&&x.awayScore!==null?`${x.homeScore}:${x.awayScore}`:'';
     const phase=x.phase==='H1'?"H1":x.phase==='H2'?"H2":x.phase;
     const time=x.minute?`${x.minute}' ${phase}`:phase;
-    return `<div class="bo-leg"><div class="bo-play">▶</div><div class="bo-line1"><span class="bo-ball">⚽</span>${score?esc(score):'—'} @ ${Number(s.odds||0).toFixed(2)} <span class="bo-market-muted">${esc(s.market||'')}</span></div>${live?`<div><span class="bo-live-odds">Live Odds</span><span class="bo-odds">${Number(s.odds||0).toFixed(2)}</span><span class="bo-arrow">↓</span></div>`:''}<div class="bo-match-name">${esc(s.home||'Home')} <span class="vs">vs</span> ${esc(s.away||'Away')}</div>${live?`<div class="bo-live-score">${esc(time)} | <strong>${esc(score)}</strong></div>`:''}<div class="bo-leg-icons"><span>🎮</span><span>›</span><span>📈</span></div></div>`;
+    const liveLabel=phase==='HT'?'45\' HT':(phase==='H1'?'H1':phase==='H2'?'H2':phase==='FT'?'FT':'');
+    return `<div class="bo-leg"><div class="bo-play">▶</div><div class="bo-line1"><span class="bo-ball">⚽</span>${score?esc(score):'—'} @ ${Number(s.odds||0).toFixed(2)} <span class="bo-market-muted">${esc(s.market||'')}</span></div>${live?`<div><span class="bo-live-odds">Live Odds</span><span class="bo-odds">${Number(s.odds||0).toFixed(2)}</span><span class="bo-arrow">↓</span></div>`:''}<div class="bo-match-name">${esc(s.home||'Home')} <span class="vs">vs</span> ${esc(s.away||'Away')}</div>${live?`<div class="bo-live-score"><strong>${esc(time)}</strong> | <strong>${esc(score)}</strong></div>`:''}<div class="bo-leg-icons"><span>🎮</span><span>›</span><span>📈</span></div></div>`;
   }).join('');
   return `<div class="bo-bet ${status!=='Open'?'settled':''}"><div class="bo-bet-head"><div class="bo-bet-title">${esc(b.type||'Multiple')} ${status==='Open'?'<span class="bo-live">Live</span>':''}</div><div class="bo-head-actions"><button type="button">↻ Rebet</button><button type="button">⌯</button><button type="button">Edit Bet</button></div></div>${legs}<div class="bo-hide">Hide Match Details <span>▲</span></div><div class="bo-summary"><div class="bo-summary-row"><span>Stake</span><strong>GHS ${Number(b.stake||0).toFixed(2)}</strong></div><div class="bo-summary-row"><span>${status==='CASHED_OUT'?'Cashout':'Pot. Win'}</span><strong>GHS ${Number(status==='CASHED_OUT'?b.cashoutAmount:b.potential||0).toFixed(2)}</strong></div>${isCashout?`<button class="bo-cashout" type="button" onclick="cashoutBet(${JSON.stringify(b.id)})">Cashout GHS ${cashout.toFixed(2)}</button>`:''}${status==='CASHED_OUT'?`<div style="margin-top:10px;color:#07983f;font-weight:900;text-align:center">CASHED OUT · GHS ${Number(b.cashoutAmount).toFixed(2)}</div>`:''}</div></div>`;
 }
 async function renderOpenBets(){
   const box=$('openBetsList');if(!box)return;
   box.innerHTML='<div class="bo-empty">Checking your open bets…</div>';
+  await ensureDemoFixturesForOpenBets();
   await settleOpenBets();
   const bets=loadOpenBets();
   $('openBetCount').textContent=bets.length;
@@ -1123,8 +1223,76 @@ document.addEventListener('click', async (event) => {
 });
 
 renderOpenBets();
-setInterval(()=>{ if(document.getElementById('openBetsPage')?.classList.contains('open')) renderOpenBets(); },1000);
+setInterval(()=>{
+  if(document.getElementById('openBetsPage')?.classList.contains('open')){
+    demoFixtures=[];
+    renderOpenBets();
+  }
+},5000);
 loadLive();
 setInterval(()=>{if(document.visibilityState==='visible'&&document.getElementById('homePage').classList.contains('active'))loadLive()},60000);
+
+/* BlueStake demo settlement: FT -> WON credits the in-app demo balance once and shows a cup. */
+function bsSettlementKey(bet){ return 'bluestake_demo_settled_' + String(bet?.id || bet?.bookingCode || bet?.created_at || 'unknown'); }
+function bsSelectionFixture(sel){
+  if(!demoFixtures?.length)return null;
+  const id=sel?.fixture_id||sel?.fixtureId;
+  if(id){const x=demoFixtures.find(m=>String(m.id)===String(id));if(x)return x;}
+  const a=String(sel?.homeTeam||sel?.home||sel?.home_team||'').trim().toLowerCase();
+  const b=String(sel?.awayTeam||sel?.away||sel?.away_team||'').trim().toLowerCase();
+  return demoFixtures.find(m=>String(m.home_team||'').trim().toLowerCase()===a&&String(m.away_team||'').trim().toLowerCase()===b)||null;
+}
+function bsSelectionWon(sel,m){
+  if(!m)return null;
+  const h=Number(m.final_home)||0,a=Number(m.final_away)||0;
+  const market=String(sel?.market||sel?.type||sel?.betType||'').toLowerCase();
+  const pick=String(sel?.selection||sel?.pick||sel?.value||sel?.outcome||'').toLowerCase();
+  const cs=pick.match(/(\d+)\s*[:\-]\s*(\d+)/);
+  if(market.includes('correct score')||cs)return !!cs&&h===Number(cs[1])&&a===Number(cs[2]);
+  if(market.includes('match winner')||market.includes('1x2')){
+    if(pick.includes('home'))return h>a;
+    if(pick.includes('away'))return a>h;
+    if(pick.includes('draw')||pick==='x')return h===a;
+  }
+  const ov=pick.match(/over\s+(\d+(?:\.\d+)?)/); if(ov)return h+a>Number(ov[1]);
+  const un=pick.match(/under\s+(\d+(?:\.\d+)?)/); if(un)return h+a<Number(un[1]);
+  if(pick.includes('gg')||pick.includes('both teams'))return h>0&&a>0;
+  return null;
+}
+function bsBetSettlementState(bet){
+  const legs=bet?.selections||bet?.legs||[]; if(!legs.length)return 'open';
+  let finished=true,won=true;
+  for(const leg of legs){
+    const m=bsSelectionFixture(leg); if(!m){finished=false;continue;}
+    const st=customMatchState(m); if(st.key!=='FT')finished=false;
+    if(bsSelectionWon(leg,m)===false)won=false;
+  }
+  return finished?(won?'won':'lost'):'open';
+}
+function bsIsDemoBet(bet){
+  return !!(bet?.isDemo||bet?.is_simulated||String(bet?.bookingCode||'').startsWith('BLUE'));
+}
+async function settleBlueStakeDemoBet(bet){
+  if(!bsIsDemoBet(bet))return;
+  const state=bsBetSettlementState(bet); if(state==='open')return;
+  const key=bsSettlementKey(bet); if(localStorage.getItem(key))return;
+  localStorage.setItem(key,state);
+  if(state==='won'){
+    const amount=Number(bet.potentialWin??bet.potential??bet.payout??0);
+    const bal=Number(localStorage.getItem('bluestake_demo_balance')||0);
+    localStorage.setItem('bluestake_demo_balance',(bal+Math.max(0,amount)).toFixed(2));
+    bet.demoSettlement='won';bet.demoCup=true;
+  }else{bet.demoSettlement='lost';}
+}
+async function checkBlueStakeDemoSettlements(){
+  if(!Array.isArray(openBets))return;
+  for(const bet of openBets)await settleBlueStakeDemoBet(bet);
+}
+
 </script>
+
+<div id="bluestake-cashout-note" style="position:fixed;left:12px;right:12px;bottom:82px;z-index:9999;background:#f3f6fc;border:1px solid #d9e2f3;color:#52617b;border-radius:10px;padding:8px 12px;font-size:11px;text-align:center;box-shadow:0 3px 12px rgba(20,40,90,.08)">
+  Cash Out is currently simulated for testing. No real-money payout is processed.
+</div>
+
 </body></html>
