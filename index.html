@@ -182,7 +182,7 @@
     <p>View your currently open bets and their status here.</p>
   </div>
   <div class="open-bets-card">
-    <div class="open-bets-tabs"><button class="active" onclick="renderOpenBets()">Open Bets</button><button onclick="showSettledBets()">Settled Bets</button></div>
+    <div class="open-bets-tabs"><button class="active" onclick="setBetTab('open')">Open Bets</button><button onclick="setBetTab('settled')">Settled Bets</button></div>
     <div id="openBetsList"></div>
   </div>
 </section>
@@ -550,9 +550,118 @@ function confirmPlaceBet(){
   const bet={id:'bet-'+Date.now(),type:selectedBets.length===2?'Double':'Single',selections:selectedBets.map(b=>({...b})),combinedOdds:Number(odds.toFixed(2)),stake:Number(stake.toFixed(2)),potential:Number((stake*odds).toFixed(2)),placedAt:new Date().toISOString(),status:'Open',bookingCode:booking.code};
   bets.unshift(bet);saveOpenBets(bets);selectedBets=[];updateBetSlip();closeBetModal();renderOpenBets();showBookingResult(booking);
 }
-function renderOpenBets(){const box=$('openBetsList');if(!box)return;const bets=loadOpenBets();if(!bets.length){box.innerHTML='<div class="open-bets-empty"><div class="open-bets-icon">🎟</div><h3>No Open Bets</h3><p>Your open bets will appear here after you place a bet.</p></div>';return}box.innerHTML=bets.map(b=>{const sels=Array.isArray(b.selections)?b.selections:[b];return `<div class="open-bet-item"><div class="open-bet-top"><span class="open-bet-status">${esc(b.status||'Open')}</span><span class="open-bet-time">${esc(new Date(b.placedAt).toLocaleString())}</span></div><div class="open-bet-type">${esc(b.type||'Single')} · Booking <b>${esc(b.bookingCode||'—')}</b></div>${sels.map((s,i)=>`<div class="open-bet-leg"><div class="open-bet-match">${i+1}. ${esc(s.home)} vs ${esc(s.away)}</div><div class="open-bet-market">${esc(s.market)} · <b>${esc(s.selection)}</b> @ ${Number(s.odds).toFixed(2)}</div></div>`).join('')}<div class="open-bet-values"><span>Stake: <strong>GHS ${Number(b.stake).toFixed(2)}</strong></span><span>Potential: <strong>GHS ${Number(b.potential).toFixed(2)}</strong></span></div></div>`}).join('')}
+function loadSettledBets(){try{return JSON.parse(localStorage.getItem('bluestake_settled_bets')||'[]')}catch{return []}}
+function saveSettledBets(list){localStorage.setItem('bluestake_settled_bets',JSON.stringify(list))}
+function settlementFinished(st){return ['FT','AET','PEN','CANC','ABD','AWD','WO'].includes(String(st||'').toUpperCase())}
+function parseNum(v){const n=Number(String(v).replace(',','.'));return Number.isFinite(n)?n:null}
+function getScoreParts(f){
+  const hg=f?.goals?.home, ag=f?.goals?.away;
+  const h=parseNum(hg), a=parseNum(ag);
+  if(h===null||a===null)return null;
+  return {h,a,htH:parseNum(f?.score?.halftime?.home),htA:parseNum(f?.score?.halftime?.away),fhH:parseNum(f?.score?.fulltime?.home),fhA:parseNum(f?.score?.fulltime?.away),shH:parseNum(f?.score?.extratime?.home),shA:parseNum(f?.score?.extratime?.away)};
+}
+function outcomeWin(selection,market,f){
+  const sc=getScoreParts(f); if(!sc)return null;
+  const m=String(market||'').toLowerCase(), s=String(selection||'').trim();
+  const h=sc.h,a=sc.a,total=h+a;
+  const norm=x=>x.toLowerCase().replace(/_/g,' ').replace(/\s+/g,' ').trim();
+  const ns=norm(s);
+  if(m.includes('correct score')||m.includes('exact score')){
+    const mm=ns.match(/(\d+)\s*[:\-]\s*(\d+)/); return mm? h===Number(mm[1])&&a===Number(mm[2]):null;
+  }
+  if(m.includes('exact goals')){const n=parseNum(ns.match(/[\d.]+/)?.[0]);return n===null?null:total===n}
+  if(m.includes('match winner')||m==='1x2'||m.includes('home/away')||m.includes('winner')){
+    if(ns==='home'||ns==='1')return h>a;
+    if(ns==='draw'||ns==='x')return h===a;
+    if(ns==='away'||ns==='2')return a>h;
+  }
+  if(m.includes('double chance')){
+    if(ns.includes('home')&&ns.includes('draw'))return h>=a;
+    if(ns.includes('draw')&&ns.includes('away'))return a>=h;
+    if(ns.includes('home')&&ns.includes('away'))return h!==a;
+  }
+  if(m.includes('both teams')||m.includes('btts')||m.includes('gg')){
+    if(ns==='yes'||ns==='gg')return h>0&&a>0;
+    if(ns==='no'||ns==='ng')return !(h>0&&a>0);
+  }
+  const ou=ns.match(/^(over|under)\s*([0-9]+(?:\.[05])?)/i);
+  if((m.includes('over/under')||m.includes('goals')||m.includes('total'))&&ou){
+    const line=Number(ou[2]); return ou[1].toLowerCase()==='over'?total>line:total<line;
+  }
+  if(m.includes('first half')||m.includes('half time')||m.includes('1st half')||m.includes('ht')){
+    if(sc.htH===null||sc.htA===null)return null;
+    const hh=sc.htH,ha=sc.htA,ht=hh+ha;
+    if(m.includes('winner')){
+      if(ns==='home'||ns==='1')return hh>ha;
+      if(ns==='draw'||ns==='x')return hh===ha;
+      if(ns==='away'||ns==='2')return ha>hh;
+    }
+    const hOu=ns.match(/^(over|under)\s*([0-9]+(?:\.[05])?)/i);
+    if(hOu){const line=Number(hOu[2]);return hOu[1].toLowerCase()==='over'?ht>line:ht<line}
+  }
+  if(m.includes('second half')){
+    if(sc.htH===null||sc.htA===null)return null;
+    const shH=h-sc.htH,shA=a-sc.htA,sh=shH+shA;
+    if(m.includes('winner')){
+      if(ns==='home'||ns==='1')return shH>shA;
+      if(ns==='draw'||ns==='x')return shH===shA;
+      if(ns==='away'||ns==='2')return shA>shH;
+    }
+    const shOu=ns.match(/^(over|under)\s*([0-9]+(?:\.[05])?)/i);
+    if(shOu){const line=Number(shOu[2]);return shOu[1].toLowerCase()==='over'?sh>line:sh<line}
+  }
+  return null;
+}
+async function settleOpenBets(){
+  const open=loadOpenBets(), settled=loadSettledBets(), remaining=[], newly=[];
+  for(const bet of open){
+    const sels=Array.isArray(bet.selections)?bet.selections:[bet];
+    let allFinished=true, anyLost=false, unresolved=false;
+    for(const s of sels){
+      if(!s.matchId){unresolved=true;continue}
+      try{
+        const r=await fetch('/api/fixtures?id='+encodeURIComponent(s.matchId),{cache:'no-store'});
+        const data=await r.json(); const f=Array.isArray(data.response)?data.response[0]:null;
+        if(!f||!settlementFinished(f?.fixture?.status?.short)){allFinished=false;continue}
+        const result=outcomeWin(s.selection,s.market,f);
+        if(result===false)anyLost=true;
+        if(result===null)unresolved=true;
+      }catch{unresolved=true}
+    }
+    if(allFinished&&!unresolved){
+      bet.status=anyLost?'LOST':'WON';
+      bet.settledAt=new Date().toISOString();
+      newly.push(bet);
+    }else remaining.push(bet);
+  }
+  if(newly.length){saveOpenBets(remaining);saveSettledBets([...newly,...settled]);}
+  return {remaining,newly};
+}
+function openBetHtml(b){
+  const sels=Array.isArray(b.selections)?b.selections:[b];
+  const status=String(b.status||'Open');
+  return `<div class="open-bet-item"><div class="open-bet-top"><span class="open-bet-status">${status==='WON'?'🏆 WON':status==='LOST'?'❌ LOST':'OPEN'}</span><span class="open-bet-time">${esc(new Date(b.placedAt).toLocaleString())}</span></div><div class="open-bet-type">${esc(b.type||'Single')} · Booking <b>${esc(b.bookingCode||'—')}</b></div>${sels.map((s,i)=>`<div class="open-bet-leg"><div class="open-bet-match">${i+1}. ${esc(s.home)} vs ${esc(s.away)}</div><div class="open-bet-market">${esc(s.market)} · <b>${esc(s.selection)}</b> @ ${Number(s.odds).toFixed(2)}</div></div>`).join('')}<div class="open-bet-values"><span>Stake: <strong>GHS ${Number(b.stake).toFixed(2)}</strong></span><span>${status==='WON'?'Winning return:':'Potential:'} <strong>GHS ${Number(b.potential).toFixed(2)}</strong></span></div>${status==='WON'?'<div style="font-size:34px;text-align:center;margin-top:8px">🏆</div>':''}</div>`;
+}
+async function renderOpenBets(){
+  const box=$('openBetsList');if(!box)return;
+  box.innerHTML='<div class="open-bets-empty"><div class="spinner"></div><p>Checking match results…</p></div>';
+  await settleOpenBets();
+  const bets=loadOpenBets();
+  if(!bets.length){box.innerHTML='<div class="open-bets-empty"><div class="open-bets-icon">🎟</div><h3>No Open Bets</h3><p>Your open bets will appear here after you place a bet.</p></div>';return}
+  box.innerHTML=bets.map(openBetHtml).join('');
+}
+function renderSettledBets(){
+  const box=$('openBetsList');if(!box)return;
+  const bets=loadSettledBets();
+  if(!bets.length){box.innerHTML='<div class="open-bets-empty"><div class="open-bets-icon">🏆</div><h3>No Settled Bets</h3><p>Completed bets will appear here after their matches finish.</p></div>';return}
+  box.innerHTML=bets.map(openBetHtml).join('');
+}
+function setBetTab(tab){
+  document.querySelectorAll('.open-bets-tabs button').forEach((b,i)=>b.classList.toggle('active',(tab==='open'?i===0:i===1)));
+  if(tab==='open')renderOpenBets();else renderSettledBets();
+}
 function removeOpenBet(id){const bets=loadOpenBets().filter(b=>b.id!==id);saveOpenBets(bets);renderOpenBets()}
-function showSettledBets(){alert('Settled Bets will be connected when the result-settlement backend is enabled.')}
+function showSettledBets(){setBetTab('settled')}
 
 
 function openMoney(type){
