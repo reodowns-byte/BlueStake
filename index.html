@@ -1064,8 +1064,10 @@ function findDemoFixtureForSelection(s){
 }
 async function ensureDemoFixturesForOpenBets(){
   if(!supabaseClient)return;
-  if(demoFixtures.length)return;
   try{
+    /* Always refresh the published simulated fixtures here.  Open Bets may have
+       been created before the page loaded the Home fixture list, so relying on
+       the existing demoFixtures array can hide the live clock/score. */
     const {data,error}=await supabaseClient.from('bluestake_demo_matches').select('*').eq('is_published',true).order('scheduled_at',{ascending:true});
     if(!error&&Array.isArray(data))demoFixtures=data;
   }catch{}
@@ -1084,8 +1086,18 @@ function simulatedCashout(b){
   const potential=Number(b.potential)||0; if(!potential)return 0;
   const sels=Array.isArray(b.selections)?b.selections:[b];
   let liveCount=0;let winningCount=0;
-  sels.forEach(s=>{const x=getSelectionLiveInfo(s);if(x.live||x.phase==='HT'){liveCount++;if(String(s.market||'').toLowerCase().includes('correct score')){if(x.homeScore!==null&&x.awayScore!==null&&String(s.selection).replace(/\s/g,'')===`${x.homeScore}:${x.awayScore}`)winningCount++;}}});
-  const ratio=liveCount?Math.min(.92,Math.max(.25,.45+.18*winningCount+.05*liveCount)):0.1;
+  sels.forEach(s=>{
+    const x=getSelectionLiveInfo(s);
+    if(x.live){
+      liveCount++;
+      if(String(s.market||'').toLowerCase().includes('correct score')){
+        if(x.homeScore!==null&&x.awayScore!==null&&String(s.selection).replace(/\s/g,'')===`${x.homeScore}:${x.awayScore}`)winningCount++;
+      }
+    }
+  });
+  /* Cashout is displayed only while at least one leg is genuinely live. */
+  if(!liveCount)return 0;
+  const ratio=Math.min(.92,Math.max(.25,.45+.18*winningCount+.05*liveCount));
   return Number((potential*ratio).toFixed(2));
 }
 function cashoutBet(id){
@@ -1107,15 +1119,46 @@ function openBetHtml(b){
   const status=String(b.status||'Open');
   const cashout=simulatedCashout(b);
   const isCashout=status==='Open'&&cashout>0;
+  let anyLive=false, anyFinished=false, anyScheduled=false;
   const legs=sels.map((s,i)=>{
-    const x=getSelectionLiveInfo(s);const live=x.live||x.phase==='HT';
+    const x=getSelectionLiveInfo(s);
+    const live=x.live;
+    if(live)anyLive=true;
+    if(x.phase==='FT')anyFinished=true;
+    if(!x.phase&&x.minute===null)anyScheduled=true;
     const score=x.homeScore!==null&&x.awayScore!==null?`${x.homeScore}:${x.awayScore}`:'';
-    const phase=x.phase==='H1'?"H1":x.phase==='H2'?"H2":x.phase;
+    const phase=x.phase==='H1'?'H1':x.phase==='H2'?'H2':x.phase;
     const time=x.minute?`${x.minute}' ${phase}`:phase;
     const liveLabel=phase==='HT'?'45\' HT':(phase==='H1'?'H1':phase==='H2'?'H2':phase==='FT'?'FT':'');
-    return `<div class="bo-leg"><div class="bo-play">▶</div><div class="bo-line1"><span class="bo-ball">⚽</span>${score?esc(score):'—'} @ ${Number(s.odds||0).toFixed(2)} <span class="bo-market-muted">${esc(s.market||'')}</span></div>${live?`<div><span class="bo-live-odds">Live Odds</span><span class="bo-odds">${Number(s.odds||0).toFixed(2)}</span><span class="bo-arrow">↓</span></div>`:''}<div class="bo-match-name">${esc(s.home||'Home')} <span class="vs">vs</span> ${esc(s.away||'Away')}</div>${(live||x.phase==='FT'||x.phase==='HT')&&score?`<div class="bo-live-score"><strong>${esc(time||x.phase)}</strong> | <strong>${esc(score)}</strong></div>`:''}<div class="bo-leg-icons"><span>🎮</span><span>›</span><span>📈</span></div></div>`;
+    const stateLabel=phase==='FT'?'FT':phase==='HT'?'45\' HT':(live?(x.minute?`${x.minute}' ${phase}`:'LIVE'):'');
+    return `<div class="bo-leg">
+      <div class="bo-play">▶</div>
+      <div class="bo-line1"><span class="bo-ball">⚽</span>${score?esc(score):'—'} @ ${Number(s.odds||0).toFixed(2)} <span class="bo-market-muted">${esc(s.market||'')}</span></div>
+      ${live?`<div><span class="bo-live-odds">LIVE</span><span class="bo-odds">${Number(s.odds||0).toFixed(2)}</span><span class="bo-arrow">↓</span></div>`:''}
+      <div class="bo-match-name">${esc(s.home||'Home')} <span class="vs">vs</span> ${esc(s.away||'Away')}</div>
+      ${stateLabel&&score?`<div class="bo-live-score"><strong>${esc(stateLabel)}</strong> <span class="bo-live-sep">|</span> <strong>${esc(score)}</strong></div>`:''}
+      ${!live&&phase!== 'FT'&&phase!=='HT'&&x.minute===null?`<div class="bo-scheduled-state">Match time not started</div>`:''}
+      <div class="bo-leg-icons"><span>🎮</span><span>›</span><span>📈</span></div>
+    </div>`;
   }).join('');
-  const demoWin=b.demoSettlement==='won'||(b.demoCup&&status==='WON'); const demoLost=b.demoSettlement==='lost'||status==='LOST'; return `<div class="bo-bet ${status!=='Open'?'settled':''}"><div class="bo-bet-head"><div class="bo-bet-title">${demoWin?'<span class="bs-win-cup" title="Winning demo bet">🏆</span>':''}${esc(b.type||'Multiple')} ${status==='Open'?'<span class="bo-live">Live</span>':demoWin?'<span class="bo-settled-win">WON</span>':demoLost?'<span class="bo-settled-lost">LOST</span>':''}</div><div class="bo-head-actions"><button type="button">↻ Rebet</button><button type="button">⌯</button><button type="button">Edit Bet</button></div></div>${legs}<div class="bo-hide">Hide Match Details <span>▲</span></div><div class="bo-summary"><div class="bo-summary-row"><span>Stake</span><strong>GHS ${Number(b.stake||0).toFixed(2)}</strong></div><div class="bo-summary-row"><span>${status==='CASHED_OUT'?'Cashout':'Pot. Win'}</span><strong>GHS ${Number(status==='CASHED_OUT'?b.cashoutAmount:b.potential||0).toFixed(2)}</strong></div>${demoWin?`<div class="bo-settlement-result">🏆 WINNING BET · Demo balance credited GHS ${Number(b.potential||0).toFixed(2)}</div>`:''}${demoLost?`<div class="bo-settlement-result lost">BET LOST · No demo balance credited</div>`:''}${isCashout?`<button class="bo-cashout" type="button" onclick="cashoutBet(${JSON.stringify(b.id)})">Cashout GHS ${cashout.toFixed(2)}</button>`:''}${status==='CASHED_OUT'?`<div style="margin-top:10px;color:#07983f;font-weight:900;text-align:center">CASHED OUT · GHS ${Number(b.cashoutAmount).toFixed(2)}</div>`:''}</div></div>`;
+  const demoWin=b.demoSettlement==='won'||(b.demoCup&&status==='WON');
+  const demoLost=b.demoSettlement==='lost'||status==='LOST';
+  const headerState=status!=='Open'
+    ? (demoWin?'<span class="bo-settled-win">WON</span>':demoLost?'<span class="bo-settled-lost">LOST</span>':'')
+    : (anyLive?'<span class="bo-live">Live</span>':anyFinished?'<span class="bo-ft">FT</span>':'<span class="bo-open-state">Open</span>');
+  return `<div class="bo-bet ${status!=='Open'?'settled':''}">
+    <div class="bo-bet-head"><div class="bo-bet-title">${demoWin?'<span class="bs-win-cup" title="Winning demo bet">🏆</span>':''}${esc(b.type||'Multiple')} ${headerState}</div><div class="bo-head-actions"><button type="button">↻ Rebet</button><button type="button">⌯</button><button type="button">Edit Bet</button></div></div>
+    ${legs}
+    <div class="bo-hide">Hide Match Details <span>▲</span></div>
+    <div class="bo-summary">
+      <div class="bo-summary-row"><span>Stake</span><strong>GHS ${Number(b.stake||0).toFixed(2)}</strong></div>
+      <div class="bo-summary-row"><span>${status==='CASHED_OUT'?'Cashout':'Pot. Win'}</span><strong>GHS ${Number(status==='CASHED_OUT'?b.cashoutAmount:b.potential||0).toFixed(2)}</strong></div>
+      ${demoWin?`<div class="bo-settlement-result">🏆 WINNING BET · Demo balance credited GHS ${Number(b.potential||0).toFixed(2)}</div>`:''}
+      ${demoLost?`<div class="bo-settlement-result lost">BET LOST · No demo balance credited</div>`:''}
+      ${isCashout?`<button class="bo-cashout" type="button" onclick="cashoutBet(${JSON.stringify(b.id)})">Cashout GHS ${cashout.toFixed(2)}</button>`:''}
+      ${status==='CASHED_OUT'?`<div style="margin-top:10px;color:#07983f;font-weight:900;text-align:center">CASHED OUT · GHS ${Number(b.cashoutAmount).toFixed(2)}</div>`:''}
+    </div>
+  </div>`;
 }
 async function renderOpenBets(){
   const box=$('openBetsList');if(!box)return;
@@ -1256,7 +1299,7 @@ setInterval(()=>{
     demoFixtures=[];
     renderOpenBets();
   }
-},5000);
+},1000);
 loadLive();
 setInterval(()=>{if(document.visibilityState==='visible'&&document.getElementById('homePage').classList.contains('active'))loadLive()},60000);
 
@@ -1328,6 +1371,15 @@ async function checkBlueStakeDemoSettlements(){
 .bo-bet{padding-bottom:18px}
 .bo-summary{padding-bottom:12px}
 .bo-cashout{margin-top:12px!important;margin-bottom:4px!important}
+</style>
+<style>
+.bo-live-score{display:block;margin:7px 0 2px 42px;padding:7px 10px;border-radius:7px;background:#e9f8ef;color:#16863e;font-weight:900;font-size:14px;letter-spacing:.2px}
+.bo-live-sep{margin:0 5px;color:#5c6778}
+.bo-scheduled-state{margin:7px 0 2px 42px;color:#7d8798;font-size:13px;font-weight:700}
+.bo-ft{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:6px;background:#eef1f5;color:#4b5565;font-size:12px;font-weight:900}
+.bo-open-state{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:6px;background:#eef1f5;color:#4b5565;font-size:12px;font-weight:900}
+.bo-live{display:inline-block;margin-left:8px;padding:4px 8px;border-radius:6px;background:#e8f7ee;color:#17833d;font-size:12px;font-weight:900}
+.bs-win-cup{box-shadow:0 0 0 2px #d9f1e2}
 </style>
 
 </body></html>
