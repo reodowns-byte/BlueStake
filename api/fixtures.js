@@ -1,5 +1,6 @@
 export default async function handler(req, res) {
-  const key = process.env.APIFOOTBALL_KEY;
+  const key = String(process.env.APIFOOTBALL_KEY || '').trim();
+
   if (!key) {
     return res.status(500).json({
       error: 'APIFOOTBALL_KEY is not configured.'
@@ -32,21 +33,35 @@ export default async function handler(req, res) {
   }
 
   const isLive = q.live === 'all';
+  const url = `https://v3.football.api-sports.io/fixtures?${params.toString()}`;
 
   try {
-    const response = await fetch(
-      `https://v3.football.api-sports.io/fixtures?${params.toString()}`,
-      {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    let response;
+    try {
+      response = await fetch(url, {
+        method: 'GET',
         headers: {
           'x-apisports-key': key,
           'Accept': 'application/json'
-        }
-      }
-    );
+        },
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
 
-    const data = await response.json();
+    const raw = await response.text();
 
-    // Pass API-Football quota information back to BlueStake.
+    let data;
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = { raw };
+    }
+
     const remaining = response.headers.get('x-ratelimit-requests-remaining');
     const limit = response.headers.get('x-ratelimit-requests-limit');
 
@@ -57,8 +72,6 @@ export default async function handler(req, res) {
       res.setHeader('X-BlueStake-API-Limit', limit);
     }
 
-    // Cache live fixtures briefly at Vercel's edge so many users
-    // do not create a separate API-Football request.
     if (isLive && response.ok) {
       res.setHeader(
         'Cache-Control',
@@ -72,11 +85,10 @@ export default async function handler(req, res) {
       return res.status(response.status).json({
         error: 'API-Football request failed.',
         status: response.status,
-        details: data?.errors || data?.message || null
+        details: data?.errors || data?.message || data || null
       });
     }
 
-    // API-Football can return an errors object even when HTTP is 200.
     if (data?.errors && Object.keys(data.errors).length > 0) {
       return res.status(502).json({
         error: 'API-Football returned an error.',
@@ -86,9 +98,14 @@ export default async function handler(req, res) {
 
     return res.status(200).json(data);
   } catch (error) {
+    const message =
+      error?.name === 'AbortError'
+        ? 'API-Football request timed out after 8 seconds.'
+        : (error?.message || String(error));
+
     return res.status(502).json({
-      error: 'API-Football request failed.',
-      details: error?.message || null
+      error: 'Could not reach API-Football.',
+      details: message
     });
   }
 }
