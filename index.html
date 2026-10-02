@@ -193,10 +193,10 @@
 
   <div id="loggedInProfile" class="profile-logged" style="display:none">
     <div class="profile-member-head">
-      <div class="member-row">
+      <div class="member-row" onclick="openAccountDetails()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')openAccountDetails()">
         <div class="member-avatar">●</div>
         <div id="memberName" class="member-name" style="color:#fff">BlueStake User <span class="member-arrow">›</span></div>
-        <div class="member-gear">⚙</div>
+        <button class="member-gear" type="button" onclick="event.stopPropagation();openSettings()" aria-label="Settings">⚙</button>
       </div>
       <div class="tier-row"><span>Loyalty Tier:</span><span id="memberTier">🏅 Bronze</span></div>
       <div class="tier-bar"><div class="tier-fill"></div></div>
@@ -248,6 +248,8 @@
 </div>
 <nav class="bottom"><button class="active" onclick="go('homePage',0)"><span class="bi">⌂</span>Live</button><button onclick="go('matchesPage',1)"><span class="bi">⚽</span>Matches</button><button onclick="go('bookingsPage',2)"><span class="bi">🎟</span>Bookings</button><button onclick="go('walletPage',3)"><span class="bi">▣</span>Wallet</button><button onclick="go('profilePage',4)"><span class="bi">●</span>Profile</button></nav>
 </div>
+<div id="settingsBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeSettings()"><div class="modal"><div class="modal-head"><h2>BlueStake Settings</h2><button class="close" onclick="closeSettings()">×</button></div><div class="modal-body"><div class="info-card" style="margin:0 0 12px"><strong id="settingsName">BlueStake User</strong><div id="settingsEmail" style="margin-top:6px;color:var(--muted);font-size:13px"></div></div><button class="continue" style="margin-top:0;background:#fff;color:var(--blue);border:1px solid var(--blue)" onclick="resetFromSettings()">Reset Password</button><button class="continue" style="margin-top:10px" onclick="closeSettings();signOutUser()">Log Out</button></div></div></div>
+<div id="accountBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeAccountDetails()"><div class="modal"><div class="modal-head"><h2>My BlueStake Account</h2><button class="close" onclick="closeAccountDetails()">×</button></div><div class="modal-body"><div class="info-card" style="margin:0"><strong id="accountDetailsName">BlueStake User</strong><div id="accountDetailsEmail" style="margin-top:6px;color:var(--muted);font-size:13px"></div><div id="accountDetailsTier" style="margin-top:10px;color:var(--blue);font-weight:800"></div></div></div></div></div>
 <div id="authBackdrop" class="modal-backdrop" onclick="if(event.target===this)closeAuth()"><div class="modal"><div class="modal-head"><h2 id="authTitle">Join BlueStake</h2><button class="close" onclick="closeAuth()">×</button></div><div class="modal-body"><div class="auth-tabs"><button id="joinTab" onclick="openAuth('join')">Join</button><button id="loginTab" onclick="openAuth('login')">Login</button></div><div id="joinFields"><label>NAME</label><input class="field" id="name" autocomplete="name" placeholder="Your name"><label>EMAIL</label><input class="field" id="joinEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>PASSWORD</label><input class="field" id="joinPassword" type="password" autocomplete="new-password" placeholder="Create a password"><label>CONFIRM PASSWORD</label><input class="field" id="confirmPassword" type="password" autocomplete="new-password" placeholder="Confirm your password"></div><div id="loginFields"><label>EMAIL</label><input class="field" id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"><label>PASSWORD</label><input class="field" id="loginPassword" type="password" autocomplete="current-password" placeholder="Your password"><button class="forgot" type="button" onclick="resetPassword()">Forgot password?</button></div><div id="authError" class="auth-error" role="alert"></div><button id="authContinue" class="continue" onclick="submitAuth()">Create Account</button><div id="authNote" class="demo-note">Secure authentication is handled by Supabase. Your password is not stored in BlueStake.</div></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -279,7 +281,7 @@ async function ensureSupabase(){
   }
 }
 const $=id=>document.getElementById(id);
-function go(id,idx){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.body.classList.toggle('profile-view',id==='profilePage');document.querySelectorAll('.bottom button').forEach((x,i)=>x.classList.toggle('active',i===idx));window.scrollTo({top:0,behavior:'smooth'});if(id==='homePage')loadLive()}
+function go(id,idx){if($('authBackdrop')) $('authBackdrop').classList.remove('open');document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));const page=$(id);if(!page)return;page.classList.add('active');document.body.classList.toggle('profile-view',id==='profilePage');document.querySelectorAll('.bottom button').forEach((x,i)=>x.classList.toggle('active',i===idx));window.scrollTo({top:0,behavior:'smooth'});if(id==='homePage')loadLive();if(id==='walletPage')loadWalletData()}
 function openAuth(mode){
   authMode=mode;$('authBackdrop').classList.add('open');
   $('authTitle').textContent=mode==='join'?'Join BlueStake':'Login to BlueStake';
@@ -387,6 +389,24 @@ function updateAuthButtons(isLoggedIn,name){
   const box=document.querySelector('.auth');if(!box)return;
   box.innerHTML=isLoggedIn?`<button class="login" onclick="go('profilePage',4)">${esc(name||'Account')}</button><button class="join" onclick="signOutUser()">Log out</button>`:`<button class="join" onclick="openAuth('join')">Join</button><button class="login" onclick="openAuth('login')">Login</button>`;
 }
+function openSettings(){
+  if(!currentUser){openAuth('login');return;}
+  $('settingsName').textContent=currentUser.user_metadata?.display_name||currentUser.user_metadata?.full_name||currentUser.email?.split('@')[0]||'BlueStake User';
+  $('settingsEmail').textContent=currentUser.email||'';
+  $('settingsBackdrop').classList.add('open');
+}
+function closeSettings(){$('settingsBackdrop').classList.remove('open')}
+function resetFromSettings(){closeSettings();openAuth('login');if(currentUser?.email){$('loginEmail').value=currentUser.email;}setTimeout(resetPassword,50)}
+function openAccountDetails(){
+  if(!currentUser){openAuth('login');return;}
+  const name=currentUser.user_metadata?.display_name||currentUser.user_metadata?.full_name||currentUser.email?.split('@')[0]||'BlueStake User';
+  $('accountDetailsName').textContent=name;
+  $('accountDetailsEmail').textContent=currentUser.email||'';
+  $('accountDetailsTier').textContent=$('memberTier')?.textContent||'🏅 Bronze';
+  $('accountBackdrop').classList.add('open');
+}
+function closeAccountDetails(){$('accountBackdrop').classList.remove('open')}
+
 async function signOutUser(){
   if(supabaseClient) await supabaseClient.auth.signOut();
   currentUser=null;localStorage.removeItem('bluestakeUserName');setLoggedInProfile(false);updateAuthButtons(false);go('homePage',0);
