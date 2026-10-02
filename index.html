@@ -1082,6 +1082,21 @@ function getSelectionLiveInfo(s){
   if(f){const st=f.fixture?.status||{},g=f.goals||{};const live=['1H','2H','HT'].includes(String(st.short||''));return {live,phase:st.short==='1H'?'H1':st.short==='2H'?'H2':st.short==='HT'?'HT':st.short==='FT'?'FT':'',minute:st.elapsed,homeScore:g.home??0,awayScore:g.away??0,home:s.home,away:s.away};}
   return {live:false,phase:'',minute:null,homeScore:null,awayScore:null,home:s.home,away:s.away};
 }
+function simulatedLiveOdds(selection, info){
+  const base=Math.max(1.01,Number(selection?.odds)||1.01);
+  if(!info?.live)return base;
+  const market=String(selection?.market||'').toLowerCase();
+  const pick=String(selection?.selection||'').replace(/\s/g,'');
+  let factor=0.72;
+  if(market.includes('correct score')){
+    const m=pick.match(/(\d+):(-?\d+)/);
+    if(m){
+      const distance=Math.abs(Number(m[1])-Number(info.homeScore??0))+Math.abs(Number(m[2])-Number(info.awayScore??0));
+      factor=Math.max(0.55,Math.min(0.92,0.92-0.08*distance));
+    }
+  }
+  return Number(Math.max(1.05,base*factor).toFixed(2));
+}
 function simulatedCashout(b){
   const potential=Number(b.potential)||0; if(!potential)return 0;
   const sels=Array.isArray(b.selections)?b.selections:[b];
@@ -1123,29 +1138,39 @@ function openBetHtml(b){
   const legs=sels.map((s,i)=>{
     const x=getSelectionLiveInfo(s);
     const live=x.live;
+    const finished=x.phase==='FT';
+    const halfTime=x.phase==='HT';
     if(live)anyLive=true;
-    if(x.phase==='FT')anyFinished=true;
+    if(finished)anyFinished=true;
     if(!x.phase&&x.minute===null)anyScheduled=true;
+
     const score=x.homeScore!==null&&x.awayScore!==null?`${x.homeScore}:${x.awayScore}`:'';
-    const phase=x.phase==='H1'?'H1':x.phase==='H2'?'H2':x.phase;
-    const time=x.minute?`${x.minute}' ${phase}`:phase;
-    const liveLabel=phase==='HT'?'45\' HT':(phase==='H1'?'H1':phase==='H2'?'H2':phase==='FT'?'FT':'');
-    const stateLabel=phase==='FT'?'FT':phase==='HT'?'45\' HT':(live?(x.minute?`${x.minute}' ${phase}`:'LIVE'):'');
-    return `<div class="bo-leg">
-      <div class="bo-play">▶</div>
-      <div class="bo-line1"><span class="bo-ball">⚽</span>${score?esc(score):'—'} @ ${Number(s.odds||0).toFixed(2)} <span class="bo-market-muted">${esc(s.market||'')}</span></div>
-      ${live?`<div><span class="bo-live-odds">LIVE</span><span class="bo-odds">${Number(s.odds||0).toFixed(2)}</span><span class="bo-arrow">↓</span></div>`:''}
+    const phase=x.phase==='H1'?'H1':x.phase==='H2'?'H2':x.phase==='HT'?'HT':x.phase==='FT'?'FT':'';
+    const stateLabel=phase==='FT'?'FT':phase==='HT'?"45' HT":(live?(x.minute?`${x.minute}' ${phase}`:'LIVE'):'');
+    const liveOdds=simulatedLiveOdds(s,x);
+    const selectionText=String(s.selection||s.pick||s.value||'').trim() || score || '—';
+    const marker=finished
+      ? '<div class="bo-finished-check">✓</div>'
+      : '<div class="bo-play">▶</div>';
+
+    return `<div class="bo-leg ${finished?'bo-leg-finished':''}">
+      ${marker}
+      <div class="bo-line1"><span class="bo-ball">⚽</span><strong>${esc(selectionText)}</strong> @ ${Number(s.odds||0).toFixed(2)} <span class="bo-market-muted">${esc(s.market||'')}</span></div>
+      ${live?`<div class="bo-live-odds-row"><span class="bo-live-odds">Live Odds</span><span class="bo-odds">${liveOdds.toFixed(2)}</span><span class="bo-arrow">↓</span></div>`:''}
       <div class="bo-match-name">${esc(s.home||'Home')} <span class="vs">vs</span> ${esc(s.away||'Away')}</div>
       ${stateLabel&&score?`<div class="bo-live-score"><strong>${esc(stateLabel)}</strong> <span class="bo-live-sep">|</span> <strong>${esc(score)}</strong></div>`:''}
-      ${!live&&phase!== 'FT'&&phase!=='HT'&&x.minute===null?`<div class="bo-scheduled-state">Match time not started</div>`:''}
+      ${halfTime&&score?`<div class="bo-live-score bo-half-time"><strong>HT</strong> <span class="bo-live-sep">|</span> <strong>${esc(score)}</strong></div>`:''}
+      ${!live&&!finished&&!halfTime&&!stateLabel&&x.minute===null?`<div class="bo-scheduled-state">Match time not started</div>`:''}
       <div class="bo-leg-icons"><span>🎮</span><span>›</span><span>📈</span></div>
     </div>`;
   }).join('');
+
   const demoWin=b.demoSettlement==='won'||(b.demoCup&&status==='WON');
   const demoLost=b.demoSettlement==='lost'||status==='LOST';
   const headerState=status!=='Open'
     ? (demoWin?'<span class="bo-settled-win">WON</span>':demoLost?'<span class="bo-settled-lost">LOST</span>':'')
     : (anyLive?'<span class="bo-live">Live</span>':anyFinished?'<span class="bo-ft">FT</span>':'<span class="bo-open-state">Open</span>');
+
   return `<div class="bo-bet ${status!=='Open'?'settled':''}">
     <div class="bo-bet-head"><div class="bo-bet-title">${demoWin?'<span class="bs-win-cup" title="Winning demo bet">🏆</span>':''}${esc(b.type||'Multiple')} ${headerState}</div><div class="bo-head-actions"><button type="button">↻ Rebet</button><button type="button">⌯</button><button type="button">Edit Bet</button></div></div>
     ${legs}
@@ -1382,4 +1407,12 @@ async function checkBlueStakeDemoSettlements(){
 .bs-win-cup{box-shadow:0 0 0 2px #d9f1e2}
 </style>
 
+
+<style>
+.bo-finished-check{position:absolute;left:4px;top:49px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2eae62;color:#fff;font-size:21px;font-weight:900}
+.bo-leg-finished{background:linear-gradient(to right,rgba(232,248,238,.45),transparent 28%)}
+.bo-live-odds-row{display:flex;align-items:center;gap:9px;margin-top:12px}
+.bo-live-odds-row .bo-live-odds{margin-top:0}
+.bo-half-time{background:#eef1f5;color:#596273}
+</style>
 </body></html>
