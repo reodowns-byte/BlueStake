@@ -1001,6 +1001,32 @@ function outcomeWin(selection,market,f){
 async function settleOpenBets(){
   const open=loadOpenBets(), settled=loadSettledBets(), remaining=[], newly=[];
   for(const bet of open){
+    /* Simulated BlueStake bets use the local demo-fixture clock as the source of truth.
+       This path is deliberately separate from API-Football so a finished simulated leg
+       cannot remain stuck in Open Bets just because it has no real API fixture id. */
+    if(bsIsDemoBet(bet)){
+      const demoState=bsBetSettlementState(bet);
+      if(demoState==='won'||demoState==='lost'){
+        bet.status=demoState==='won'?'WON':'LOST';
+        bet.settledAt=bet.settledAt||new Date().toISOString();
+        bet.isDemo=true;
+        const key=bsSettlementKey(bet);
+        if(!localStorage.getItem(key)){
+          localStorage.setItem(key,demoState);
+          if(demoState==='won'){
+            const amount=Number(bet.potentialWin??bet.potential??bet.payout??0);
+            const bal=Number(localStorage.getItem('bluestake_demo_balance')||0);
+            localStorage.setItem('bluestake_demo_balance',(bal+Math.max(0,amount)).toFixed(2));
+          }
+        }
+        bet.demoSettlement=demoState;
+        bet.demoCup=demoState==='won';
+        newly.push(bet);
+        continue;
+      }
+      remaining.push(bet);
+      continue;
+    }
     const sels=Array.isArray(bet.selections)?bet.selections:[bet];
     let allFinished=true, anyLost=false, unresolved=false, hasDemo=false;
     for(const s of sels){
@@ -1207,8 +1233,11 @@ async function renderOpenBets(){
   box.innerHTML=filtered.length?filtered.map(openBetHtml).join(''):'<div class="bo-empty">No bets match this filter.</div>';
 }
 
-function renderSettledBets(){
+async function renderSettledBets(){
   const box=$('openBetsList');if(!box)return;
+  box.innerHTML='<div class="bo-empty">Checking settled bets…</div>';
+  await ensureDemoFixturesForOpenBets();
+  await settleOpenBets();
   const bets=loadSettledBets();
   if(!bets.length){box.innerHTML='<div class="open-bets-empty"><div class="open-bets-icon">🏆</div><h3>No Settled Bets</h3><p>Completed bets will appear here after their matches finish.</p></div>';return}
   box.innerHTML=bets.map(openBetHtml).join('');
